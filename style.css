@@ -22,9 +22,15 @@ body {
 
 /* 左半分の部屋（クリックエリア） */
 #left-panel {
-    flex: 1; /* 横幅の比率（1：1で均等に分ける） */
-    border-right: 2px dashed #f7e1d7; /* 真ん中に可愛い点線の区切りを入れる */
+    flex: 1.2; /* 【変更】右のショップより、左のクリックエリアを少し広く（1.2倍）します */
+    border-right: 2px dashed #f7e1d7;
     padding-right: 20px;
+    
+    /* 【追加】中身の要素を縦に綺麗に並べて中央に寄せる設定 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 右半分の部屋（ショップエリア） */
@@ -34,29 +40,38 @@ body {
 
 /* クリックエリアとメインボタン */
 #click-area {
-    margin: 40px 0;
+    margin: 20px 0;
+    width: 100%; /* 横幅いっぱいに広げる */
 }
 
 #main-click-btn {
-    font-size: 24px;
-    padding: 20px 40px;
+    /* 【大改造】フォントとサイズを巨大にします */
+    font-size: 32px;
+    width: 300px;  /* 横幅を300pxに巨大化 */
+    height: 300px; /* 縦幅も300pxにして綺麗な正円にする */
+    border-radius: 50%; /* 【変更】カプセル型から「完全な丸（正円）」に変えます */
+    
     background-color: #ff9f43; /* 美味しそうなオレンジ色 */
     color: white;
     border: none;
-    border-radius: 50px; /* カプセル型に丸める */
     cursor: pointer;
-    box-shadow: 0 6px #ee5253; /* ボタンの立体的な厚み */
-    transition: 0.1s;
+    box-shadow: 0 10px #ee5253; /* 【変更】厚みも少し深くして立体感をアップ */
+    transition: 0.05s; /* 【変更】クリックした時の沈み込みをさらに高速に */
 }
 
 /* ボタンを押したときのカチッとする動き */
 #main-click-btn:active {
-    box-shadow: 0 2px #ee5253;
-    transform: translateY(4px);
+    box-shadow: 0 3px #ee5253;
+    transform: translateY(7px); /* 【変更】深く沈み込むようにして叩き心地を強化 */
 }
 
 /* ショップのボタン */
 .shop-btn {
+    display: block;      /* ボタンを縦に綺麗に並べるためのおまじない */
+    width: 100%;         /* 【追加】横幅を全部同じ（100%）に統一する！ */
+    box-sizing: border-box; /* 【追加】余白を含めても幅がはみ出さないようにする設定 */
+    margin-bottom: 10px; /* 【追加】ボタンとボタンの間に少しすき間をあける */
+    
     font-size: 16px;
     padding: 12px 24px;
     background-color: #1dd1a1; /* 明るいグリーン */
@@ -66,8 +81,35 @@ body {
     cursor: pointer;
 }
 
+
 /* お金が足りなくてボタンが押せないとき */
 .shop-btn:disabled {
     background-color: #c8d6e5; /* グレーに変える */
-    cursor: not-allowed; /* マウスを禁止マークにする */
+    pointer-events: auto;      /* マウスの反応をオンにする */
+    cursor: pointer;              /* はてなマーク（?）のカーソルにする */
 }
+
+/* 自作ツールチップをボタンの横に浮かせるデザイン */
+#tooltip {
+    position: absolute;   /* 画面のレイアウトから浮かせる魔法の命令 */
+    left: -280px;         /* ショップエリアの左外側（ボタンの横）に配置 */
+    width: 250px;         /* ツールチップの横幅を固定 */
+    z-index: 10;          /* 他の要素よりも一番手前に表示する */
+    
+    background-color: #2c3e50; /* カッコいいダークグレー */
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: left;
+    border: 2px solid #bdc3c7;
+    white-space: pre-wrap; /* 改行文字（\n）を有効にする */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+
+/* ポップアップを非表示にするためのクラス（追加部分！） */
+.hidden {
+    display: none !important;
+}
+

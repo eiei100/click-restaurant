@@ -23,13 +23,14 @@
 
 
         <!-- 右半分の部屋：ショップ -->
-        <div id="right-panel">
+        <div id="right-panel" style="position: relative;">
             <h2>スタッフ募集・設備投資</h2>
-            <div id="shop-area">
-                <button id="buy-worker-btn" class="shop-btn" disabled>
-                    見習いバイトを雇う (コスト: <span id="worker-cost">15</span> 円)
-                </button>
-            </div>
+
+            <!-- 【追加】これがゼロ秒でパッと出る自作ポップアップの箱です -->
+            <div id="tooltip" class="hidden"></div>
+
+            <!-- JavaScriptがこの中にボタンを自動で量産します -->
+            <div id="shop-area"></div>
         </div>
 
     </div>
