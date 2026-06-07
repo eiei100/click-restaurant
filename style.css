@@ -1,0 +1,73 @@
+/* 画面全体の基本設定 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7e1d7; /* 美味しそうな薄いベージュ色 */
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+
+/* ゲーム全体を包むコンテナ（ここを2列に並べる！） */
+#game-container {
+    max-width: 900px; /* 2列にするので少し幅を広くします */
+    margin: 20px auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    
+    display: flex; /* これが左右に並べる魔法の命令です */
+    gap: 20px;     /* 左の部屋と右の部屋の間のすき間 */
+}
+
+/* 左半分の部屋（クリックエリア） */
+#left-panel {
+    flex: 1; /* 横幅の比率（1：1で均等に分ける） */
+    border-right: 2px dashed #f7e1d7; /* 真ん中に可愛い点線の区切りを入れる */
+    padding-right: 20px;
+}
+
+/* 右半分の部屋（ショップエリア） */
+#right-panel {
+    flex: 1; /* 横幅の比率（1：1で均等に分ける） */
+}
+
+/* クリックエリアとメインボタン */
+#click-area {
+    margin: 40px 0;
+}
+
+#main-click-btn {
+    font-size: 24px;
+    padding: 20px 40px;
+    background-color: #ff9f43; /* 美味しそうなオレンジ色 */
+    color: white;
+    border: none;
+    border-radius: 50px; /* カプセル型に丸める */
+    cursor: pointer;
+    box-shadow: 0 6px #ee5253; /* ボタンの立体的な厚み */
+    transition: 0.1s;
+}
+
+/* ボタンを押したときのカチッとする動き */
+#main-click-btn:active {
+    box-shadow: 0 2px #ee5253;
+    transform: translateY(4px);
+}
+
+/* ショップのボタン */
+.shop-btn {
+    font-size: 16px;
+    padding: 12px 24px;
+    background-color: #1dd1a1; /* 明るいグリーン */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* お金が足りなくてボタンが押せないとき */
+.shop-btn:disabled {
+    background-color: #c8d6e5; /* グレーに変える */
+    cursor: not-allowed; /* マウスを禁止マークにする */
+}
