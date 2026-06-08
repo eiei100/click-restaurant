@@ -7,36 +7,59 @@ body {
     padding: 20px;
 }
 
-/* ゲーム全体を包むコンテナ（ここを2列に並べる！） */
+/* ゲーム全体を包むコンテナ（ここを3列にする！） */
 #game-container {
-    max-width: 900px; /* 2列にするので少し幅を広くします */
+    max-width: 1200px; /* 3列にするので、横幅をさらに広く（1200px）します */
     margin: 20px auto;
     background-color: white;
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     
-    display: flex; /* これが左右に並べる魔法の命令です */
-    gap: 20px;     /* 左の部屋と右の部屋の間のすき間 */
+    display: flex; /* これで3つの部屋が自動的に横一列に並びます */
+    gap: 20px;     /* 部屋と部屋の間のすき間 */
 }
 
-/* 左半分の部屋（クリックエリア） */
+/* 1. 左列：クリックエリア */
 #left-panel {
-    flex: 1.2; /* 【変更】右のショップより、左のクリックエリアを少し広く（1.2倍）します */
-    border-right: 2px dashed #f7e1d7;
+    flex: 1; /* 横幅の比率 */
+    border-right: 2px dashed #f7e1d7; /* 右側に点線の区切りを入れる */
     padding-right: 20px;
-    
-    /* 【追加】中身の要素を縦に綺麗に並べて中央に寄せる設定 */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
-/* 右半分の部屋（ショップエリア） */
-#right-panel {
-    flex: 1; /* 横幅の比率（1：1で均等に分ける） */
+/* 2. 【新登場！】中央列：お店の発展エリア */
+#center-panel {
+    flex: 1.2; /* 真ん中を目立たせるために、少しだけ幅を広く（1.2倍）します */
+    border-right: 2px dashed #f7e1d7; /* 右側に点線の区切りを入れる */
+    padding-right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
+
+/* 3. 右列：ショップエリア（ここは変更なし、確認用です） */
+#right-panel {
+    flex: 1; /* 横幅の比率 */
+}
+
+/* 中央列の文字や絵文字の見た目 */
+#restaurant-rank {
+    font-size: 20px;
+    font-weight: bold;
+    color: #e67e22; /* 綺麗なお焦げオレンジ色 */
+    margin-top: 10px;
+}
+
+#restaurant-visual {
+    font-size: 100px; /* 絵文字をめちゃくちゃ大きく表示する */
+    margin-top: 40px;
+    /* フワフワ浮かぶような軽いアニメーションを後から入れることもできます */
+}
+
 
 /* クリックエリアとメインボタン */
 #click-area {

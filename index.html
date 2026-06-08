@@ -6,27 +6,45 @@
         <!-- CSSファイルを読み込む -->
         <link rel="stylesheet" href="style.css">
     </head>
-    <body>
+<body>
 
-    <!-- ゲーム全体を包むコンテナ（ここを2列に並べます） -->
+    <!-- ゲーム全体を包むコンテナ（ここを3列に並べます） -->
     <div id="game-container">
         
-        <!-- 左半分の部屋：クリックと情報 -->
+        <!-- 1. 左列：クリックと売上情報 -->
         <div id="left-panel">
             <h1>売上: <span id="money">0</span> 円</h1>
             <p>毎秒の売上: <span id="mps">0</span> 円</p>
+            <!-- 【追加】これまでに稼いだすべての合計金額を表示する場所 -->
+            <p>通算の売上: <span id="total-money">0</span> 円</p>
 
             <div id="click-area">
                 <button id="main-click-btn">🍳 料理を作る！</button>
             </div>
         </div>
 
+        <!-- 2. 【新登場！】中央列：お店の発展・外観エリア -->
+        <div id="center-panel">
+            <h2>マイ・レストラン</h2>
+            <!-- 現在のお店のランク名を表示する場所 -->
+            <div id="restaurant-rank">ランク1: 小さな屋台</div>
+            <!-- お店の見た目を表す巨大な絵文字（後から画像にもできます） -->
+            <div id="restaurant-visual">🎪</div>
+        </div>
 
-        <!-- 右半分の部屋：ショップ -->
+        <!-- 3. 右列：ショップ -->
         <div id="right-panel" style="position: relative;">
             <h2>スタッフ募集・設備投資</h2>
 
-            <!-- 【追加】これがゼロ秒でパッと出る自作ポップアップの箱です -->
+            <!-- 一括購入の倍率を切り替えるボタンのグループ -->
+            <div id="buy-amount-selector" style="margin-bottom: 15px; text-align: left;">
+                購入数:
+                <label><input type="radio" name="buy-amount" value="1" checked> x1</label>
+                <label><input type="radio" name="buy-amount" value="10"> x10</label>
+                <label><input type="radio" name="buy-amount" value="100"> x100</label>
+            </div>
+            
+            <!-- ゼロ秒でパッと出る自作ポップアップの箱 -->
             <div id="tooltip" class="hidden"></div>
 
             <!-- JavaScriptがこの中にボタンを自動で量産します -->
@@ -35,8 +53,9 @@
 
     </div>
 
-    <!-- JavaScriptファイルを読み込む（ここはそのまま） -->
+    <!-- JavaScriptファイルを読み込む -->
     <script src="script.js"></script>
 </body>
+
 
 </html>
