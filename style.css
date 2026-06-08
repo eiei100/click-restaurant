@@ -136,3 +136,26 @@ body {
     display: none !important;
 }
 
+/* クリックした時に飛び出す料理エフェクトの見た目 */
+.click-effect {
+    position: absolute;
+    width: 32px;  /* 【追加】横幅を32pxに固定して小さくする */
+    height: 32px; /* 【追加】縦幅も32pxに固定して小さくする */
+    
+    pointer-events: none;
+    animation: floatUpAndFade 0.8s ease-out forwards;
+    z-index: 100;
+}
+
+
+/* 上にフワッと浮き上がって回転しながら消えるルール */
+@keyframes floatUpAndFade {
+    0% {
+        transform: translateY(0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) scale(1.4) rotate(45deg);
+        opacity: 0;
+    }
+}
