@@ -6,29 +6,29 @@ const gameState = {
     buyAmount: 1 // 現在のまとめ買いモード（最初は1個ずつ）
 };
 
-// --- 2-1. 施設のデータリスト（配列） ---
 const facilities = [
-    { id: 'flyer', name: '手書きのチラシ', cost: 15, mpsValue: 0.2, count: 0, totalEarned: 0, desc: '近所の電柱に貼ったビラ。たまに物好きな人が見にくる。' },
-    { id: 'board', name: '店先の看板板', cost: 50, mpsValue: 1, count: 0, totalEarned: 0, desc: 'チョークでメニューを書いた板。少しだけお店っぽくなった。' },
-    { id: 'sns', name: 'お店のSNSアカウント', cost: 200, mpsValue: 4, count: 0, totalEarned: 0, desc: '「本日オープン！」の写真に、身内から3つのいいねがついた。' },
-    { id: 'bike', name: 'ボロいママチャリ', cost: 800, mpsValue: 15, count: 0, totalEarned: 0, desc: '立ち漕ぎで近所にデリバリー。ブレーキをかけるとキィキィ鳴る。' },
-    { id: 'worker', name: '見習いバイト', cost: 3000, mpsValue: 60, count: 0, totalEarned: 0, desc: '時給が安くて元気がいい。お皿洗いや注文取りを頑張るぞ。' },
-    { id: 'oven', name: '自動高速オーブン', cost: 12000, mpsValue: 260, count: 0, totalEarned: 0, desc: '最新テクノロジーで作られたオーブン。ピザも一瞬で焼き上がる。' },
-    { id: 'chef', name: 'ベテラン料理長', cost: 55000, mpsValue: 1400, count: 0, totalEarned: 0, desc: '元三ツ星レストランのシェフ。彼の作るまかないは絶品。' },
-    { id: 'car', name: '高級デリバリーカー', cost: 280000, mpsValue: 7800, count: 0, totalEarned: 0, desc: '金ピカの配達車。どんなに遠くても温かいまま料理を届ける。' },
-    { id: 'drone', name: 'ドローン配達網', cost: 1500000, mpsValue: 44000, count: 0, totalEarned: 0, desc: '空からピザが降ってくる時代。カラスの襲撃対策もバッチリ。' },
-    { id: 'neon', name: '巨大ネオン看板', cost: 8500000, mpsValue: 260000, count: 0, totalEarned: 0, desc: '宇宙からも見える明るさ。夜間のお客さんが100倍に増えた。' },
-    { id: 'factory', name: '地下食品工場', cost: 50000000, mpsValue: 1600000, count: 0, totalEarned: 0, desc: '24時間ノンストップで食材を加工する、秘密の巨大地下迷宮。' },
-    { id: 'fridge', name: '超次元冷蔵庫', cost: 330000000, mpsValue: 10000000, count: 0, totalEarned: 0, desc: '中が四次元空間につながっており、無限に食材を新鮮保存できる。' },
-    { id: 'lab', name: 'ピザ研究所', cost: 2400000000, mpsValue: 65000000, count: 0, totalEarned: 0, desc: '白衣を着た科学者たちが、一番美味しくなる分子構造を研究中。' },
-    { id: 'brain', name: '脳波注文システム', cost: 18000000000, mpsValue: 430000000, count: 0, totalEarned: 0, desc: '食べたいと思った瞬間、すでに目の前に料理が届いている。' },
-    { id: 'alchemy', name: '錬金術調理鍋', cost: 140000000000, mpsValue: 2900000000, count: 0, totalEarned: 0, desc: 'ただの水と小麦粉から、最高級の黄金スープを錬成する。' },
-    { id: 'elevator', name: '美食の軌道エレベーター', cost: 1100000000000, mpsValue: 21000000000, count: 0, totalEarned: 0, desc: '地上で作った料理を、そのまま宇宙ステーションへ直行デリバリー。' },
-    { id: 'moon', name: '月面トマト農場', cost: 9500000000000, mpsValue: 150000000000, count: 0, totalEarned: 0, desc: '宇宙放射線を浴びて、信じられないほど甘くなった特大トマト。' },
-    { id: 'wormhole', name: 'ワームホール配送便', cost: 85000000000000, mpsValue: 1100000000000, count: 0, totalEarned: 0, desc: '空間を折りたたんで配達。配達時間は驚異のマイナス1秒（過去に届く）。' },
-    { id: 'parallel', name: '並行世界レストラン', cost: 780000000000000, mpsValue: 8200000000000, count: 0, totalEarned: 0, desc: '別の世界の自分たちにも店を経営させ、売上をこの世界に集約する。' },
-    { id: 'universe', name: '全知全能のレストラン', cost: 7500000000000000, mpsValue: 64000000000000, count: 0, totalEarned: 0, desc: 'この宇宙そのものが一つの巨大なレストランとなった。売上はもはや概念。' }
+    { id: 'flyer', name: '手書きのチラシ', cost: 15, mpsValue: 1, count: 0, totalEarned: 0, desc: '近所の電柱に貼ったビラ。たまに物好きな人が見にくる。' },
+    { id: 'board', name: '店先の看板板', cost: 100, mpsValue: 4, count: 0, totalEarned: 0, desc: 'チョークでメニューを書いた板。少しだけお店っぽくなった。' },
+    { id: 'sns', name: 'お店のSNSアカウント', cost: 1100, mpsValue: 32, count: 0, totalEarned: 0, desc: '「本日オープン！」の写真に、身内から3つのいいねがついた。' },
+    { id: 'bike', name: 'ボロいママチャリ', cost: 12000, mpsValue: 260, count: 0, totalEarned: 0, desc: '立ち漕ぎで近所にデリバリー。ブレーキをかけるとキィキィ鳴る。' },
+    { id: 'worker', name: '見習いバイト', cost: 130000, mpsValue: 1400, count: 0, totalEarned: 0, desc: '時給が安くて元気がいい。お皿洗いや注文取りを頑張るぞ。' },
+    { id: 'oven', name: '自動高速オーブン', cost: 1400000, mpsValue: 7800, count: 0, totalEarned: 0, desc: '最新テクノロジーで作られたオーブン。ピザも一瞬で焼き上がる。' },
+    { id: 'chef', name: 'ベテラン料理長', cost: 20000000, mpsValue: 44000, count: 0, totalEarned: 0, desc: '元三ツ星レストランのシェフ。彼の作るまかないは絶品。' },
+    { id: 'car', name: '高級デリバリーカー', cost: 330000000, mpsValue: 260000, count: 0, totalEarned: 0, desc: '金ピカの配達車。どんなに遠くても温かいまま料理を届ける。' },
+    { id: 'drone', name: 'ドローン配達網', cost: 5100000000, mpsValue: 1600000, count: 0, totalEarned: 0, desc: '空からピザが降ってくる時代。カラスの襲撃対策もバッチリ。' },
+    { id: 'neon', name: '巨大ネオン看板', cost: 75000000000, mpsValue: 10000000, count: 0, totalEarned: 0, desc: '宇宙からも見える明るさ。夜間のお客さんが100倍に増えた。' },
+    { id: 'factory', name: '地下食品工場', cost: 1100000000000, mpsValue: 65000000, count: 0, totalEarned: 0, desc: '24時間ノンストップで食材を加工する、秘密の巨大地下迷宮。' },
+    { id: 'fridge', name: '超次元冷蔵庫', cost: 14000000000000, mpsValue: 430000000, count: 0, totalEarned: 0, desc: '中が四次元空間につながっており、無限に食材を新鮮保存できる。' },
+    { id: 'lab', name: 'ピザ研究所', cost: 170000000000000, mpsValue: 2900000000, count: 0, totalEarned: 0, desc: '白衣を着た科学者たちが、一番美味しくなる分子構造を研究中。' },
+    { id: 'brain', name: '脳波注文システム', cost: 2100000000000000, mpsValue: 21000000000, count: 0, totalEarned: 0, desc: '食べたいと思った瞬間、すでに目の前に料理が届いている。' },
+    { id: 'alchemy', name: '錬金術調理鍋', cost: 26000000000000000, mpsValue: 150000000000, count: 0, totalEarned: 0, desc: 'ただの水と小麦粉から、最高級の黄金スープを錬成する。' },
+    { id: 'elevator', name: '美食の軌道エレベーター', cost: 310000000000000000, mpsValue: 1100000000000, count: 0, totalEarned: 0, desc: '地上で作った料理を、そのまま宇宙ステーションへ直行デリバリー。' },
+    { id: 'moon', name: '月面トマト農場', cost: 3800000000000000000, mpsValue: 8300000000000, count: 0, totalEarned: 0, desc: '宇宙放射線を浴びて、信じられないほど甘くなった特大トマト。' },
+    { id: 'wormhole', name: 'ワームホール配送便', cost: 45000000000000000000, mpsValue: 64000000000000, count: 0, totalEarned: 0, desc: '空間を折りたたんで配達。配達時間は驚異のマイナス1秒（過去に届く）。' },
+    { id: 'parallel', name: '並行世界レストラン', cost: 540000000000000000000, mpsValue: 510000000000000, count: 0, totalEarned: 0, desc: '別の世界の自分たちにも店を経営させ、売上をこの世界に集約する。' },
+    { id: 'universe', name: '全知全能のレストラン', cost: 6400000000000000000000, mpsValue: 4200000000000000, count: 0, totalEarned: 0, desc: 'この宇宙そのものが一つの巨大なレストランとなった。売上はもはや概念。' }
 ];
+
 
 
 
