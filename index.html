@@ -26,6 +26,12 @@
         <!-- 2. 【新登場！】中央列：お店の発展・外観エリア -->
         <div id="center-panel">
             <h2>マイ・レストラン</h2>
+
+            <!-- 設定と転生ボタンのグループ -->
+            <div id="menu-btn-group">
+                <button id="setting-btn" class="menu-btn">⚙️ 設定</button>
+                <button id="ascend-btn" class="menu-btn">🌌 転生</button>
+            </div>
             <!-- 現在のお店のランク名を表示する場所 -->
             <div id="restaurant-rank">ランク1: 小さな屋台</div>
             <!-- お店の見た目を表す巨大な絵文字（後から画像にもできます） -->
@@ -44,13 +50,33 @@
                 <label><input type="radio" name="buy-amount" value="100"> x100</label>
             </div>
             
-            <!-- ゼロ秒でパッと出る自作ポップアップの箱 -->
-            <div id="tooltip" class="hidden"></div>
 
             <!-- JavaScriptがこの中にボタンを自動で量産します -->
             <div id="shop-area"></div>
         </div>
 
+        <!-- ゼロ秒でパッと出る自作ポップアップの箱 -->
+            <div id="tooltip" class="hidden"></div>
+    </div>
+
+    <!-- 【設定】設定画面のポップアップ（モーダル） -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>⚙️ 設定メニュー</h3>
+            <p>ここに音量調節やセーブデータの削除などを追加予定</p>
+            <button id="close-settings-btn" class="close-btn">閉じる</button>
+        </div>
+    </div>
+
+    <!-- 【転生】 転生画面のポップアップ（モーダル） -->
+    <div id="ascend-modal" class="modal-overlay hidden">
+        <div calss="modal-content">
+            <h3>🌌 転生（プレステージ）</h3>
+            <p>現在のすべての売上と施設をリセットし、永久に売上がアップする「天界の調味料」を手に入れますか？</p>
+            <p style="color: #e74c3c; font-weight: bold;">（※まだリセットロジックは未実装です）</p>
+            <button id="do-ascend-btn" class="action-btn" disabled>天界へ旅立つ（準備中）</button>
+            <button id="close-ascend-btn" class="close-btn">戻る</button>
+        </div>
     </div>
 
     <!-- JavaScriptファイルを読み込む -->

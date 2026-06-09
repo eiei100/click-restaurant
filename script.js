@@ -203,8 +203,16 @@ facilities.forEach((facility) => {
         // 【修正】ブラウザ標準のtitleではなく、自作の箱に文字を流し込んで表示！
         tooltipEl.textContent = tooltipText;
         tooltipEl.classList.remove('hidden'); // 非表示クラスを外してゼロ秒出現！
-        // 【追加】マウスが乗ったボタンの縦の位置に合わせて、ツールチップの高さをピタッと合わせる
-        tooltipEl.style.top = `${btn.offsetTop}px`;
+
+        // 一番外側の箱（game-container）を基準にした、ボタンの「絶対的な位置」を計算する
+        const btnRect = btn.getBoundingClientRect();
+        const containerRect = document.getElementById('game-container').getBoundingClientRect();
+        
+        // ボタンの左端から、ツールチップの横幅分（250px）と少しの隙間（10px）を引いた左側の位置にピタッと合わせる
+        tooltipEl.style.left = `${btnRect.left - containerRect.left - 260}px`;
+        // 縦の位置も、スクロールに関係なくボタンの高さにピタッと合わせる
+        tooltipEl.style.top = `${btnRect.top - containerRect.top}px`;
+
 
     });
 
@@ -282,3 +290,32 @@ mainClickBtn.addEventListener('click', (e) => {
     document.body.appendChild(effect);
     setTimeout(() => effect.remove(), 800);
 });
+
+// --- 10. 設定・転生モーダルの開閉処理 ---
+const settingsBtn = document.getElementById('setting-btn');
+const ascendBtn = document.getElementById('ascend-btn');
+const settingsModal = document.getElementById('settings-modal');
+const ascendModal = document.getElementById('ascend-modal');
+const closeSettingsBtn = document.getElementById('close-settings-btn');
+const closeAscendBtn = document.getElementById('close-ascend-btn');
+
+// 設定画面を開く
+settingsBtn.addEventListener('click', () => {
+    settingsModal.classList.remove('hidden');
+});
+
+// 設定画面を閉じる
+closeSettingsBtn.addEventListener('click', () => {
+    settingsModal.classList.add('hidden');
+});
+
+// 転生画面を開く
+ascendBtn.addEventListener('click', () => {
+    ascendModal.classList.remove('hidden');
+});
+
+// 転生画面を閉じる
+closeAscendBtn.addEventListener('click', () => {
+    ascendModal.classList.add('hidden');
+});
+
