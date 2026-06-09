@@ -1,10 +1,15 @@
 // --- 1. ゲームの状態（データ）を１つにまとめる ---
+// --- 1. ゲームの状態（データ）を１つにまとめる ---
 const gameState = {
-    money: 0, // 現在の売上（所持金）
-    mps: 0, // 毎秒の売上（Money Per Second）
-    totalMoney: 0, // これまでに稼いだ累計売上（買い物しても絶対に減らない！）
-    buyAmount: 1 // 現在のまとめ買いモード（最初は1個ずつ）
+    money: 0, // 現在の売上（所持金・買い物で減る）
+    mps: 0, // 毎秒の売上
+    seasonMoney: 0, // 【追加】この周回（今シーズン）で稼いだ合計売上（買い物で減らない）
+    totalMoney: 0, // 全ての周での通算売上（ゲーム開始からの全累計）
+    buyAmount: 1,
+    prestigeChips: 0, // 所持している天界の調味料
+    prestigeMultiplier: 1.0 // 現在の売上倍率
 };
+
 
 const facilities = [
     { id: 'flyer', name: '手書きのチラシ', cost: 15, mpsValue: 1, count: 0, totalEarned: 0, desc: '近所の電柱に貼ったビラ。たまに物好きな人が見にくる。' },
@@ -161,10 +166,13 @@ function formatNumber(num) {
 
 // --- 5. 料理を作るボタン（メインクリック）を押した時 ---
 mainClickBtn.addEventListener('click', () => {
-    gameState.money += 1; // 売上を1円増やす
-    gameState.totalMoney += 1; // 累計売上にも1円プラス
-    updateDisplay(); // 画面を更新する
+    const clickEarned = 1 * (gameState.prestigeMultiplier || 1.0);
+    gameState.money += clickEarned;
+    gameState.seasonMoney += clickEarned; // 【追加】この周回の合計にプラス
+    gameState.totalMoney += clickEarned;  // 全ての周の通算にプラス
+    updateDisplay();
 });
+
 
 
 // --- 6. ショップのボタンを自動生成する ---
@@ -247,26 +255,24 @@ facilities.forEach((facility) => {
 });
 
 // --- 7. 自動生産（メインループ） ---
-// 1秒間に10回（100ミリ秒ごと）計算して、スムーズお金を増やす
 setInterval(() => {
     if (gameState.mps > 0) {
-        // 1回（0.1秒）あたりに増える全体の売上
-        const tickEarned = gameState.mps / 10;
+        const tickEarned = (gameState.mps * (gameState.prestigeMultiplier || 1.0)) / 10;
         gameState.money += tickEarned;
-        gameState.totalMoney += tickEarned; // 累計売上にも自動生産分をプラス
+        gameState.seasonMoney += tickEarned; // 【追加】この周回の合計にプラス
+        gameState.totalMoney += tickEarned;  // 全ての周の通算にプラス
 
-        // それぞれの施設が「この0.1秒でいくら稼いだか」を個別に累計していく
         facilities.forEach((facility) => {
             if (facility.count > 0) {
-                // （この施設の1体あたりの能力 * 所持数） / 10
-                const facilityTickEarned = (facility.mpsValue * facility.count) / 10;
+                const facilityTickEarned = ((facility.mpsValue * facility.count) * (gameState.prestigeMultiplier || 1.0)) / 10;
                 facility.totalEarned += facilityTickEarned;
             }
         });
 
-        updateDisplay(); // 画面を更新する
+        updateDisplay();
     }
 }, 100);
+
 
 // --- 8. 最初の一歩 ---
 // ゲームが起動した瞬間に、最初の画面を0円の状態で表示する
@@ -319,3 +325,169 @@ closeAscendBtn.addEventListener('click', () => {
     ascendModal.classList.add('hidden');
 });
 
+// --- 11. 転生（プレステージ）の計算とリセット処理 ---
+const currentChipsEl = document.getElementById('current-chips');
+const incomingChipsEl = document.getElementById('incoming-chips');
+const doAscendBtn = document.getElementById('do-ascend-btn');
+
+// 【計算】「この周回で稼いだ売上」から転生時にもらえるポイントを計算する数式
+// 例: 通算売上1万で10個、4万で20個、といった具合にルート（平方根）を使ってインフレさせる
+function calculateTotalChips(money) {
+    if (money < 10000) return 0; // 最低でも通算1万以上稼がないと転生できません
+    return Math.floor(Math.sqrt(money / 100)); // 100で割った値をルートして、小数点以下を切り捨て
+}
+
+// 転生モーダル（画面）が開かれた瞬間に、ポイントの表示を計算して書き換える処理
+ascendBtn.addEventListener('click', () => {
+    const totalEarnedChips = calculateTotalChips(gameState.seasonMoney);
+    // 今回の周回だけで新しく取得できるポイント
+    // *すでに獲得済みの prestigeChips より多く稼いで初めて追加ポイントがもらえます
+        // 【修正】これまでに獲得したチップ（prestigeChips）を引いて、純粋な「追加分」を計算する
+    const newChips = Math.max(0, totalEarnedChips - (gameState.prestigeChips || 0));
+
+    if (currentChipsEl) currentChipsEl.textContent = formatNumber(gameState.prestigeChips || 0);
+    if (incomingChipsEl) incomingChipsEl.textContent = formatNumber(newChips);
+
+    // 1ポイントでももらえるなら、実行ボタンを押せるようにする
+    if (doAscendBtn) {
+        if (newChips > 0) {
+            doAscendBtn.disabled = false;
+            doAscendBtn.style.opacity = "1";
+            doAscendBtn.style.cursor = "pointer";
+        } else {
+            doAscendBtn.disabled = true;
+            doAscendBtn.style.opacity = "0.5";
+            doAscendBtn.style.cursor = "not-allowed";
+        }
+    }
+});
+
+if (doAscendBtn) {
+    doAscendBtn.addEventListener('click', () => {
+        const totalEarnedChips = calculateTotalChips(gameState.seasonMoney);
+        const newChips = Math.max(0, totalEarnedChips - (gameState.prestigeChips || 0));
+
+        const confirmAscend = confirm(`本当に転生しますか？\n「天界の調味料」を +${formatNumber(newChips)} 個獲得し、お店を最初からやり直します。`);
+
+        if (confirmAscend) {
+            // 1. 今回の純増分（newChips）だけを、これまでの所持チップに加算する！
+            gameState.prestigeChips = (gameState.prestigeChips || 0) + newChips;
+            // 新しい合計チップ数をもとに、永久売上倍率を計算（1個につき+1%永久アップ）
+            gameState.prestigeMultiplier = 1.0 + (gameState.prestigeChips * 0.01);
+
+            // 2. ゲームの状況を初期化（通算売上と、今引き継いだ転生はデータは残す！）
+            gameState.money = 0;
+            gameState.mps = 0;
+            gameState.seasonMoney = 0; // この周回で稼いだ売上をゼロにリセット！
+
+            // 3. すべての施設を所持数0・初期価格にリセット
+            const defaultCosts = {
+                flyer: 15, board: 100, sns: 1100, bike: 12000, worker: 130000,
+                oven: 1400000, chef: 20000000, car: 330000000, drone: 5100000000, neon: 75000000000,
+                factory: 1100000000000, fridge: 14000000000000, lab: 170000000000000, brain: 2100000000000000,
+                alchemy: 26000000000000000, elevator: 310000000000000000, moon: 3800000000000000000,
+                wormhole: 45000000000000000000, parallel: 540000000000000000000, universe: 6400000000000000000000
+            };
+
+            facilities.forEach(f => {
+                f.count = 0;
+                f.totalEarned = 0;
+                f.cost = defaultCosts[f.id] || f.cost;
+            })
+
+            ascendModal.classList.add('hidden');
+            updateDisplay();
+
+            alert(`転生に成功しました！現在の永久売上倍率: ${gameState.prestigeMultiplier.toFixed(2)} 倍`);
+
+        }
+    });
+}
+
+// --- 12. ⚠️ 設定画面のデータ完全消去（リセット）システム ---
+const resetGameBtn = document.getElementById('reset-game-btn');
+
+if (resetGameBtn) {
+    resetGameBtn.addEventListener('click', () => {
+        // 1回目の警告確認
+        const confirmFirst = confirm("⚠️ 最終警告 ⚠️\nこれまでの現在の所持金、スタッフ、通算売上、および【天界の調味料（転生データ）】も含む、すべてのデータを完全に削除して最初からやり直しますか？");
+
+        if (confirmFirst) {
+            //2回目の念押し確認
+            const confirmSecond = confirm("本当に、本当に消去しますよ？\nこの操作は絶対に取り消すことができません。よろしいですか？");
+
+            if (confirmSecond) {
+                // 自動セーブ機能で使う保存用キー（clickRestaurantSave）をブラウザから完全に削除
+                localStorage.removeItem('clickRestaurantSave');
+
+                // ページを強制的に再読み込み（リロード）して、完全に初期状況（0円）からスタートさせる
+                location.reload();
+            }
+        }
+    });
+}
+
+// --- 13. 💾 自動セーブ機能（LocalStorage） ---
+// 【保存】現在のゲームデータをブラウザのメモリに書き込む関数
+function saveGame() {
+    const saveData = {
+        gameState: gameState,
+        // 施設データは現在のインフレ価格、購入数、施設ごとの累計売上をセットで保存
+        facilities: facilities.map(f => ({
+            id: f.id,
+            cost: f.cost,
+            count: f.count,
+            totalEarned: f.totalEarned
+        }))
+    };
+    // ブラウザに「clickRestaurantSave」という名前で保存
+    localStorage.setItem('clickRestaurantSave', JSON.stringify(saveData));
+    console.log("ゲームが自動セーブされました。");
+}
+
+// 【ロード】ページを開いた時に、保存されたデータを自動で引き継ぐ関数
+function loadGame() {
+    const rawData = localStorage.getItem('clickRestaurantSave');
+    if (!rawData) {
+        // セーブデータが無い新規プレイでも、転生倍率を確実に 1.0（等倍）にしておく
+        if (!gameState.prestigeMultiplier) gameState.prestigeMultiplier = 1.0;
+        return;
+    }
+
+    try {
+        const saveData = JSON.parse(rawData);
+
+        // 1. 基本ステータス（所持金、今シーズンの売上、通算売上、転生チップ、倍率）を復元
+        Object.assign(gameState, saveData.gameState);
+        gameState.buyAmount = 1; // バグ防止のため、一括購入モードは1に戻す
+
+        // 安全対策：もし古いデータに転生データが無かった場合は初期値を入れる
+        if (!gameState.prestigeChips) gameState.prestigeChips = 0;
+        if (!gameState.prestigeMultiplier) gameState.prestigeMultiplier = 1.0;
+        if (!gameState.seasonMoney) gameState.seasonMoney = gameState.money; // 初回移行用
+
+        // 2. ショップの各施設の状態を復元
+        saveData.facilities.forEach(savedFacility => {
+            const facility = facilities.find(f => f.id === savedFacility.id);
+            if (facility) {
+                facility.cost = savedFacility.cost;
+                facility.count = savedFacility.count;
+                facility.totalEarned = savedFacility.totalEarned || 0;
+            }
+        });
+    } catch (e) {
+        console.error("セーブデータの読み込みに失敗しました", e);
+    }
+}
+
+// クッキークリッカー仕様：60秒（60000ミリ秒）ごとに自動セーブを実行する
+setInterval(saveGame, 60000);
+
+// ユーザーがタブを閉じる、またはリロードする直前に強制セーブ
+window.addEventListener('beforeunload', () => {
+    saveGame();
+});
+
+// ゲームが起動した瞬間にロードを行い、画面を最新にする
+loadGame();
+updateDisplay();

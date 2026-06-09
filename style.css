@@ -244,3 +244,51 @@ body {
     background-color: #d2dae2;
     cursor: not-allowed;
 }
+
+/* --- 転生モーダル内のデザイン --- */
+
+/* 黄色いステータスボックス */
+.prestige-box {
+    background-color: #f1c40f;
+    color: #2c3e50;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+/* 獲得予定ポイントの紫色の文字 */
+.prestige-sub {
+    color: #8e44ad;
+}
+
+/* ボックス内の一番下の小さな説明テキスト */
+.prestige-box p {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin: 5px 0 0 0; /* 上の文字とのすき間を調整 */
+    font-weight: normal; /* 説明文は細い文字にする */
+}
+
+/* 設定画面内の危険なボタン（リセットボタン） */
+.danger-btn {
+    background-color: #e74c3c; /* 警告を促す赤色 */
+    color: white;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.danger-btn:hover {
+    background-color: #c0392b; /* ホバーで少し暗い赤に */
+    transform: scale(1.02);
+}
+
+.danger-btn:active {
+    transform: scale(0.98);
+}
