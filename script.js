@@ -777,9 +777,12 @@ function formatSeconds(totalSeconds) {
 // クッキークリッカー仕様：60秒（60000ミリ秒）ごとに自動セーブを実行する
 setInterval(saveGame, 60000);
 
-// ユーザーがタブを閉じる、またはリロードする直前に強制セーブ
-window.addEventListener('beforeunload', saveGame);
-
+// 🌟【GitHub Pages完全対応】タブが閉じられる、または裏側に隠れた瞬間に「確実に」セーブを成功させる最新の書き方
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        saveGame();
+    }
+});
 // =================================================================
 // 🏁 ゲーム起動時の全自動スタート処理（一番安全な形）
 // =================================================================
@@ -788,8 +791,12 @@ window.addEventListener('beforeunload', saveGame);
 window.onload = function() {
     loadGame();      // ① 過去のデータを思い出す（ロード）
     createShop();    // ② ショップのボタンを画面に安全に量産する（生成）
-    createComfortShop(); // 🌟【追加】店舗設備ショップを生成
-    setupShopTabs(); // 🌟【追加】タブを動かすための命令をここに滑り込ませる！
-    updateDisplay(); // ③ 量産されたボタンに対して、初めて「ID:1を表示しろ！」と命令する（画面更新）
+    createComfortShop(); // ③ 店舗設備ショップのカタログボタンを生成（生成）
+    setupShopTabs(); // ④ タブの切り替え機能をオンにする
+    updateDisplay(); // ⑤ 画面表示を最新データに更新する
+
+    // 🌟【新登場】初めてゲームを開いた瞬間に、保険として「空っぽの初期データ」を1回即座にセーブしておく！
+    // これにより、初回プレイ時に1分待たずにすぐ閉じても、データが消えるバグを完全に防げます
+    saveGame(); 
 };
 
