@@ -93,20 +93,21 @@ body {
 
 /* ショップのボタン */
 .shop-btn {
-    display: block;      /* ボタンを縦に綺麗に並べるためのおまじない */
-    width: 100%;         /* 横幅を全部同じ（100%）に統一する！ */
-    box-sizing: border-box; /* 余白を含めても幅がはみ出さないようにする設定 */
-    margin-bottom: 10px; /* ボタンとボタンの間に少しすき間をあける */
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
     
     font-size: 16px;
     padding: 12px 24px;
-    background-color: #1dd1a1; /* 明るいグリーン */
+    background-color: #1dd1a1;
     color: white;
     border: none;
     border-radius: 8px;
-    cursor: pointer;
-    text-align: left; /* テキストを左寄せに */
+    cursor: pointer !important; /* 👈 🌟ここに !important を追加！ */
+    text-align: left;
 }
+
 
 /* お金が足りなくてボタンが押せないとき */
 .shop-btn:disabled {
@@ -291,4 +292,13 @@ body {
 
 .danger-btn:active {
     transform: scale(0.98);
+}
+
+/* ロックされている未解放の施設ボタン */
+.shop-btn.locked-facility {
+    background-color: #34495e !important; /* ショップの背景に溶け込む暗いグレー */
+    border: 1px dashed #7f8c8d; /* 点線の枠 */
+    color: #7f8c8d !important;   /* 文字を暗く */
+    cursor: not-allowed;          /* 禁止マークのカーソル */
+    opacity: 0.5;
 }
