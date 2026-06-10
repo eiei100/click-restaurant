@@ -303,4 +303,137 @@ body {
     opacity: 0.5;
 }
 
+/* --- ショップのタブ切り替えシステム --- */
+#shop-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
 
+/* 通常のタブボタンの見た目 */
+.tab-btn {
+    flex: 1;
+    padding: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    border: 1px solid #c8d6e5;
+    background-color: #f5f6fa;
+    color: #333;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+/* 今選ばれている（アクティブな）タブボタンの見た目 */
+.tab-btn.active {
+    background-color: #1dd1a1;
+    color: white;
+    border-color: #1dd1a1;
+}
+
+/* 非表示にするための共通設定 */
+.shop-container.hidden {
+    display: none !important;
+}
+
+/* 🌟店舗設備が「導入済み（売り切れ）」になった時の豪華デザイン */
+.shop-btn.comfort-sold {
+    background: linear-gradient(135deg, #ffeaa7, #ffb142) !important; /* 豪華なゴールドのグラデーション */
+    color: #2c3e50 !important;                                    /* 文字を読みやすい濃いネイビーに */
+    border: 2px solid #cc8e35 !important;                          /* 高級感のあるゴールドの太枠 */
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);                  /* ほんのりゴールドに光るエフェクト */
+    cursor: default !important;                                    /* 買えないので指マークは消す */
+    font-weight: bold;
+}
+
+
+
+/* --- 🎪 レストランのアニメーション舞台（PC向け・超大画面ワイド版） --- */
+#restaurant-stage {
+    display: block;           
+    background-color: #f5f6fa; 
+    border: 3px solid #c8d6e5;  
+    border-radius: 24px;        /* 🌟画面がさらに大きくなったので角丸も強調 */
+    padding: 0;
+    margin-top: 25px;
+    overflow: hidden;         
+    position: relative;       
+    width: 100%;                
+    height: 480px;            /* 🌟【サイズアップ】高さを360pxから480pxに大幅拡張！ */
+    box-sizing: border-box;
+    box-shadow: inset 0 0 25px rgba(0,0,0,0.06); 
+}
+
+/* 🏪 レストランの建物 */
+#restaurant-building-box {
+    position: absolute;
+    top: 55%;                 /* 🌟上下のバランスをキープ */
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    font-size: 96px;          
+    user-select: none;
+    z-index: 5;               
+}
+
+/* 💰 お金のエフェクト */
+#coin-effect {
+    position: absolute;
+    top: -70px;               /* 建物の上に配置 */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 48px;          
+    opacity: 0; 
+    animation: coinLoop 7.2s ease-out infinite;
+}
+
+/* 🎬 💰コインがピョコンと飛び出すアニメーション（高さに余裕ができたので少し高くジャンプ） */
+@keyframes coinLoop {
+    0%, 50% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 
+    53%     { opacity: 1; transform: translate(-50%, -60px) scale(1.2); } /* 🌟ジャンプ高さを-60pxに強化してダイナミックに */
+    56%     { opacity: 1; transform: translate(-50%, -60px) scale(1.0); } 
+    64%     { opacity: 0; transform: translate(-50%, -100px) scale(0.8); } /* 🌟上空-100pxへ気持ちよく昇天消滅 */
+    66.6%, 100% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 
+}
+
+/* 🚶 お客さんのベース設定 */
+.walking-guest {
+    position: absolute;
+    bottom: 85px;            
+    left: -100px; 
+    width: 60px;             
+    height: auto;            
+    opacity: 1;
+    z-index: 4;     
+    content: var(--guest-img); /* JSから届いた共通の1枚の画像をセット */
+}
+
+
+/* （以下、.start-animation や @keyframes guestLoop は前回のままでOKです！） */
+
+
+/* 💡 アニメーション開始クラス（変更なし） */
+.start-animation {
+    animation: guestLoop 7.2s linear infinite;
+}
+
+/* 🎬 お客さんの動き（位置と不透明度だけのシンプル版） */
+@keyframes guestLoop {
+    /* 【登場：左外（-100px）から左道（10%）へ】 */
+    0%   { left: -100px; opacity: 1; }
+    16.6% { left: 10%;    opacity: 1; }
+
+    /* 【入店：左道（10%）からお店の前（46%）へ】 */
+    33.3% { left: 46%;    opacity: 1; }
+
+    /* 【食事中：お店の中で消える】 */
+    50.0% { left: 46%;    opacity: 0; }
+
+    /* 【お会計：お店の中で透明のまま待機】 */
+    66.6% { left: 46%;    opacity: 0; }
+    
+    /* 【再登場：お会計が終わって店から現れる（向きはそのまま）】 */
+    66.7% { left: 46%;    opacity: 1; } 
+
+    /* 【退場：お店の前（46%）から右外（115%）へハケていく】 */
+    100%  { left: 115%;   opacity: 1; }
+}

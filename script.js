@@ -6,10 +6,11 @@ const gameState = {
     totalMoney: 0, // 全ての周での通算売上（ゲーム開始からの全累計）
     buyAmount: 1,
     prestigeChips: 0, // 所持している天界の調味料
-    prestigeMultiplier: 1.0 // 現在の売上倍率
+    prestigeMultiplier: 1.0, // 現在の売上倍率
+    comfort: 0 // 🌟【追加】お店の現在の「合計快適度」（これをもとに客が増えたりレビューが良くなる！）
 };
 
-
+// 2-1. 施設一覧
 const facilities = [
     { id: 'flyer', name: '手書きのチラシ', cost: 15, mpsValue: 1, count: 0, totalEarned: 0, desc: '近所の電柱に貼ったビラ。たまに物好きな人が見にくる。' },
     { id: 'board', name: '店先の看板板', cost: 100, mpsValue: 4, count: 0, totalEarned: 0, desc: 'チョークでメニューを書いた板。少しだけお店っぽくなった。' },
@@ -35,7 +36,7 @@ const facilities = [
 
 
 
-
+// 2-2. ランク一覧
 const restaurantRanks = [
     { threshold: 0, name: 'ランク1: 賑やかな夜の屋台', visual: '🎪' },
     { threshold: 500, name: 'ランク2: 行列のできる下町食堂', visual: '🏪' }, // 街のお店へ
@@ -48,6 +49,18 @@ const restaurantRanks = [
     { threshold: 1e18, name: 'ランク9: 超次元ブラックホール異界食堂', visual: '🌀' }, // 次元迷宮
     { threshold: 1e21, name: 'ランク10: 全知全能の全宇宙満腹聖殿', visual: '🌌' } // 銀河そのもの
 ];
+
+// --- 2-3. 店舗設備（快適度）アイテムのデータ ---
+const comfortItems = [
+    { id: 'plant', name: '観葉植物', cost: 1000000, comfortValue: 5, count: 0, visual: '🌳', description: '店内に緑をプラス。空気が美味しくなり、少しだけ落ち着く空間になる。' }, // 100万
+    { id: 'terrace', name: 'テラス席', cost: 50000000, comfortValue: 15, count: 0, visual: '🪑', description: '天気の良い日に最高な外の特等席。開放感があって、お客さんにも大人気。' }, // 5000万
+    // 🌟【新登場！】中盤の大きな目標になるBGM解放アイテム
+    { id: 'bgm_cafe', name: 'オシャレなカフェBGM', cost: 150000000, comfortValue: 20, count: 0, visual: '🎵', description: 'お店の雰囲気をガラッと変える新BGMを解放。これを目当てに来るお客さんも。' }, // 1億5000万
+    { id: 'fountain', name: '癒しの噴水', cost: 10000000000, comfortValue: 50, count: 0, visual: '⛲', description: '水のせせらぎが響く美しい噴水。お店の格式がグッと跳ね上がる。' }, // 100億
+    { id: 'parking', name: '広々とした駐車場', cost: 2500000000000, comfortValue: 150, count: 0, visual: '🚗', description: '遠方からのお客さんも車でサクッと来店できるように。大繁盛の予感。' }, // 2.5兆
+    { id: 'interior', name: '高級な内装デザイン', cost: 8500000000000000, comfortValue: 500, count: 0, visual: '✨', description: '一流のデザイナーが手がけた最高級の内装。もはやただの食堂ではない。' } // 8500兆
+];
+
 
 
 
@@ -113,6 +126,44 @@ function updateDisplay() {
 }
 
     });
+
+    // 【快適度】店舗設備の購入判定と売り切れロックの処理
+    comfortItems.forEach((item) => {
+        const btnEl = document.getElementById(`buy-${item.id}-btn`);
+        if (!btnEl) return; // ボタンが見つからなければスキップ
+
+        // 🌟 パターン1：すでに購入済み（count が 1）の場合
+        if (item.count > 0) {
+            btnEl.disabled = true; // ２度と押せないようにロック
+
+            const nameEl = document.getElementById(`name-${item.id}`);
+            if (nameEl) {
+                // 🌟 名前のはじめに「✅」を自動でくっつけて、売り切れ看板にする！
+                nameEl.textContent = `✅ ${item.name}`;
+            }
+            
+            // 🌟【新登場】ゴールド枠のデザインクラスを付与し、ロック用クラスは外す
+            btnEl.classList.add('comfort-sold');
+            btnEl.classList.remove('locked-facility');
+        }
+        // 🌟 パターン2：まだ買っていない未導入の場合
+        else {
+            // 所持金（money）がコストより少なければグレーアウト（disabled）
+            const isShortOfMoney = gameState.money < item.cost;
+            btnEl.disabled = isShortOfMoney;
+
+            // 買ったとき用のゴールドクラスは事前に外しておく
+            btnEl.classList.remove('comfort-sold');
+
+            // お金が足りないときはロック用の外観（クラス）を付け、足りたら外して光らせる！
+            if (isShortOfMoney) {
+                btnEl.classList.add('locked-facility');
+            } else {
+                btnEl.classList.remove('locked-facility');
+            }
+        }
+    });
+
 
     checkRestaurantEvolution();
 }
@@ -197,7 +248,7 @@ function formatNumber(num) {
     }
 }
 
-// --- 5. 料理を作るボタン（メインクリック）を押した時 ---
+// --- 5-1. 料理を作るボタン（メインクリック）を押した時 ---
 mainClickBtn.addEventListener('click', () => {
     const clickEarned = 1 * (gameState.prestigeMultiplier || 1.0);
     gameState.money += clickEarned;
@@ -206,12 +257,56 @@ mainClickBtn.addEventListener('click', () => {
     updateDisplay();
 });
 
+// --- 5-2. 客の来店ミニアニメーション演出（完全同期＆ダブり防止版） ---
+const GUEST_IMAGES = [
+    "img/guest/guest1.png",
+    "img/guest/guest2.png",
+    "img/guest/guest3.png",
+    "img/guest/guest4.png",
+    "img/guest/guest5.png",
+    "img/guest/guest6.png"
+];
+
+// 直前に登場した画像のインデックスを記録する変数（ダブり防止用）
+let lastGuestIndex = -1;
+
+document.addEventListener("DOMContentLoaded", () => {
+    const guestEl = document.getElementById('live-guest');
+    if (!guestEl) return;
+
+    // 🌟 1人目のお客さんを選んでアニメーションを開始
+    changeNextGuest(guestEl);
+    guestEl.classList.add('start-animation');
+
+    // 💡 タイマーは完全廃止！
+    // CSSのアニメーションが「1周終わって最初に戻った瞬間（animationiteration）」を検知する
+    guestEl.addEventListener('animationiteration', () => {
+        // 次の周回のために、画面外（スタート地点）にいるこの瞬間に画像を切り替える！
+        changeNextGuest(guestEl);
+    });
+});
+
+// 次のお客さんを「絶対に前回と違う人」からランダムに決定する関数
+function changeNextGuest(guestEl) {
+    let randomIndex;
+    
+    // 画像が2種類以上あれば、前回と同じ画像が選ばれないようにループさせる
+    do {
+        randomIndex = Math.floor(Math.random() * GUEST_IMAGES.length);
+    } while (randomIndex === lastGuestIndex && GUEST_IMAGES.length > 1);
+
+    // 今回選ばれた番号を保存
+    lastGuestIndex = randomIndex;
+
+    const nextGuest = GUEST_IMAGES[randomIndex];
+    guestEl.style.setProperty('--guest-img', `url("${nextGuest}")`);
+}
 
 
 // --- 6. ショップのボタンを自動生成する関数 ---
 function createShop() {
     // ボタンを追加する場所（shop-area）をここでしっかり取得
-    const shopArea = document.getElementById('shop-area');
+    const shopArea = document.getElementById('shop-area-facilities');
     if (!shopArea) return;
 
     facilities.forEach((facility) => {
@@ -293,6 +388,95 @@ function createShop() {
     });
 }
 
+// 6-2. ショップのタブ切り替え機能 ---
+function setupShopTabs() {
+    // 画面のボタンと、中身の2つの箱（コンテナ）を取得
+    const tabFac = document.getElementById('tab-facilities');
+    const tabCom = document.getElementById('tab-comfort');
+    const areaFac = document.getElementById('shop-area-facilities');
+    const areaCom = document.getElementById('shop-area-comfort');
+
+    // もし要素が足りなければエラーを防ぐためにここで終わる
+    if (!tabFac || !tabCom || !areaFac || !areaCom) return;
+
+    // 「施設」タブがクリックされた時の処理
+    tabFac.addEventListener('click', () => {
+        tabFac.classList.add('active'); // 施設ボタンを緑色にする
+        tabCom.classList.remove('active'); // 店舗設備ボタンの緑色を消す
+        areaFac.classList.remove('hidden'); // 施設ショップを表示する
+        areaCom.classList.add('hidden'); // 店舗設備ショップを隠す
+    });
+
+    // 「店舗設備」タグがクリックされた時の処理
+    tabCom.addEventListener('click', () => {
+        tabCom.classList.add('active'); // たんぽ設備ボタンを緑色にする
+        tabFac.classList.remove('active'); // 施設ボタンの緑色を消す
+        areaCom.classList.remove('hidden'); // 店舗設備ショップを表示する
+        areaFac.classList.add('hidden'); // 施設ショップを隠す
+    });
+}
+
+// --- 6-3. 店舗設備（快適度）ショップのボタンを自動生成する関数
+function createComfortShop(){
+    const shopArea = document.getElementById('shop-area-comfort');
+    if (!shopArea) return;
+
+    comfortItems.forEach((item) => {
+        const btn = document.createElement('button');
+        btn.className = 'shop-btn';
+        btn.id = `buy-${item.id}-btn`;
+
+        // 最初から（？？？）を一切かけず、本名とコストを公開
+        btn.innerHTML = `<span id="name-${item.id}">${item.name}</span>（コスト: <span id="cost-${item.id}">${formatNumber(item.cost)}</span> 円)`;
+
+        // マウスを乗せた時（ホバー時）の処理
+        btn.addEventListener('mouseenter', () => {
+            let tooltipText = "";
+
+            // ロックはかけずに最初から全部見せる
+            // 🌟【大改造】ロック用の説明はすべて廃止！最初からワクワクする説明を読めるようにします
+            tooltipText += `【 ${item.name} 】\n`;
+            tooltipText += `状態: ${item.count > 0 ? '導入済み（売り切れ）' : '未導入'}\n`;
+            tooltipText += `説明: ${item.description}\n`;
+            tooltipText += `------------------------\n`;
+            tooltipText += `この設備の快適度: +${item.comfortValue}\n`;
+
+            tooltipEl.textContent = tooltipText;
+            tooltipEl.classList.remove('hidden');
+
+            const btnRect = btn.getBoundingClientRect();
+            const containerRect = document.getElementById('game-container').getBoundingClientRect();
+            tooltipEl.style.left = `${btnRect.left - containerRect.left - 260}px`;
+            tooltipEl.style.top = `${btnRect.top - containerRect.top}px`;
+        });
+
+        // マウスがボタンから離れた時
+        btn.addEventListener('mouseleave', () => {
+            tooltipEl.classList.add('hidden');
+        });
+
+        // クリックされた時の処理
+        btn.addEventListener('click', () => {
+            if (btn.classList.contains('locked-facility') || item.count > 0) return;
+
+            if (gameState.money >= item.cost) {
+                gameState.money -= item.cost;
+                item.count = 1;
+                gameState.comfort += item.comfortValue;
+
+                if (item.id === 'bgm_cafe') {
+                    console.log("【イベント】カフェBGMが開放されました！");
+                }
+
+                updateDisplay();
+                btn.dispatchEvent(new Event('mouseenter'));
+            }
+        });
+
+        // ボタンを店舗設備用の箱に追加
+        shopArea.appendChild(btn);
+    });
+}
 
 // --- 7. 自動生産（メインループ） ---
 // お金の計算（100ミリ秒ごと ＝ 1秒間に10回）
@@ -492,6 +676,11 @@ function saveGame() {
             count: f.count,
             totalEarned: f.totalEarned
         })),
+        // 🌟【新登場】店舗設備（快適度）の購入状態（count）をセーブデータに追加！
+        comfortItems: comfortItems.map(c => ({
+            id: c.id,
+            count: c.count
+        })),
         // 🌟【新機能】保存した瞬間の「時間（タイムスタンプ）」を記録！
         saveTime: Date.now()
     };
@@ -516,10 +705,11 @@ function loadGame() {
         Object.assign(gameState, saveData.gameState);
         gameState.buyAmount = 1; // バグ防止のため、一括購入モードは1に戻す
 
-        // 安全対策：もし古いデータに転生データが無かった場合は初期値を入れる
+        // 安全対策：もし古いデータに転生データや快適度データが無かった場合は初期値を入れる
         if (!gameState.prestigeChips) gameState.prestigeChips = 0;
         if (!gameState.prestigeMultiplier) gameState.prestigeMultiplier = 1.0;
         if (!gameState.seasonMoney) gameState.seasonMoney = gameState.money; // 初回移行用
+        if (!gameState.comfort) gameState.comfort = 0; // 🌟快適度変数の安全対策
 
         // 2. ショップの各施設の状態を復元
         saveData.facilities.forEach(savedFacility => {
@@ -530,6 +720,16 @@ function loadGame() {
                 facility.totalEarned = savedFacility.totalEarned || 0;
             }
         });
+
+        // 🌟【新登場】店舗設備（快適度）の購入状態をデータから復元！
+        if (saveData.comfortItems) {
+            saveData.comfortItems.forEach(savedComfort => {
+                const item = comfortItems.find(c => c.id === savedComfort.id);
+                if (item) {
+                    item.count = savedComfort.count; // 1（導入済み）か 0 を復元
+                }
+            });
+        }
 
         // 3. オフラインボーナスの計算
         // 前回のセーブデータがあり、かつ毎秒の売上（mps）が1円以上の場合のみ計算する
@@ -542,7 +742,6 @@ function loadGame() {
             if (passedSeconds >= 60) {
                 // オフライン中の売上 = 離れていた秒数 * 毎秒の売上
                 const offlineEarnings = Math.floor(passedSeconds * gameState.mps * 0.3);
-
 
                 // 各種データにプラスする
                 gameState.money += offlineEarnings;
@@ -560,6 +759,7 @@ function loadGame() {
         console.error("セーブデータの読み込みに失敗しました", e);
     }
 }
+
 
 // 【便利機能】秒数を「〇時間〇分〇秒」の読みやすい文字に変換する関数
 function formatSeconds(totalSeconds) {
@@ -588,6 +788,8 @@ window.addEventListener('beforeunload', saveGame);
 window.onload = function() {
     loadGame();      // ① 過去のデータを思い出す（ロード）
     createShop();    // ② ショップのボタンを画面に安全に量産する（生成）
+    createComfortShop(); // 🌟【追加】店舗設備ショップを生成
+    setupShopTabs(); // 🌟【追加】タブを動かすための命令をここに滑り込ませる！
     updateDisplay(); // ③ 量産されたボタンに対して、初めて「ID:1を表示しろ！」と命令する（画面更新）
 };
 

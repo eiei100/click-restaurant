@@ -23,28 +23,45 @@
             </div>
         </div>
 
-        <!-- 2. 【新登場！】中央列：お店の発展・外観エリア -->
-        <div id="center-panel">
-            <h2>マイ・レストラン</h2>
+        <!-- 2. 中央列：お店の発展・外観エリア -->
+<div id="center-panel">
+    <h2>マイ・レストラン</h2>
 
-            <!-- 設定と転生ボタンのグループ -->
-            <div id="menu-btn-group">
-                <button id="setting-btn" class="menu-btn">⚙️ 設定</button>
-                <button id="ascend-btn" class="menu-btn">🌌 転生</button>
-            </div>
-            <!-- 現在のお店のランク名を表示する場所 -->
-            <div id="restaurant-rank">ランク1: 小さな屋台</div>
-            <!-- お店の見た目を表す巨大な絵文字（後から画像にもできます） -->
-            <div id="restaurant-visual">🎪</div>
+    <!-- 設定と転生ボタンのグループ -->
+    <div id="menu-btn-group">
+        <button id="setting-btn" class="menu-btn">⚙️ 設定</button>
+        <button id="ascend-btn" class="menu-btn">🌌 転生</button>
+    </div>
+    <!-- 現在のお店のランク名を表示する場所 -->
+    <div id="restaurant-rank">ランク1: 小さな屋台</div>
 
-            
-
+    <!-- 🎪 お客さんがトコトコ歩くアニメーションの舞台（CSSお任せ版に最適化） -->
+    <div id="restaurant-stage">
+        <!-- 🏪 レストラン本体と、お金が浮かび上がる場所 -->
+        <div id="restaurant-building-box">
+            <!-- 💡 修正：class="hidden" を除去。表示・非表示はすべてCSSが自動制御します -->
+            <div id="coin-effect">💰</div>
+            <div id="restaurant-visual">🏪</div>
         </div>
+
+        <!-- 💡 修正：<img> タグに変更。srcに「左向きの画像パス」をセットします -->
+        <!-- 🌟 start-animation クラスをはじめから付与しておくことで、読み込みと同時に自動ループします -->
+        <img id="live-guest" class="walking-guest start-animation" src="img/guest_left.png" alt="客">
+    </div>
+
+</div>
+
+
 
         <!-- 3. 右列：ショップ -->
         <div id="right-panel" style="position: relative;">
-            <h2>スタッフ募集・設備投資</h2>
+            <h2>ショップ</h2>
 
+            <!-- 🌟【新登場】ショップの切り替えタブ -->
+            <div id ="shop-tabs">
+                <button id="tab-facilities" class="tab-btn active">施設</button>
+                <button id="tab-comfort" class="tab-btn">店舗設備</button>
+            </div>
             <!-- 一括購入の倍率を切り替えるボタンのグループ -->
             <div id="buy-amount-selector" style="margin-bottom: 15px; text-align: left;">
                 購入数:
@@ -55,7 +72,8 @@
             
 
             <!-- JavaScriptがこの中にボタンを自動で量産します -->
-            <div id="shop-area"></div>
+            <div id="shop-area-facilities" class="shop-continer"></div>
+            <div id="shop-area-comfort" class="shop-continer hidden"></div>
         </div>
 
         <!-- ゼロ秒でパッと出る自作ポップアップの箱 -->
