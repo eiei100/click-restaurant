@@ -295,12 +295,13 @@ function createShop() {
 
 
 // --- 7. 自動生産（メインループ） ---
+// お金の計算（100ミリ秒ごと ＝ 1秒間に10回）
 setInterval(() => {
     if (gameState.mps > 0) {
         const tickEarned = (gameState.mps * (gameState.prestigeMultiplier || 1.0)) / 10;
         gameState.money += tickEarned;
-        gameState.seasonMoney += tickEarned; // 【追加】この周回の合計にプラス
-        gameState.totalMoney += tickEarned;  // 全ての周の通算にプラス
+        gameState.seasonMoney += tickEarned; 
+        gameState.totalMoney += tickEarned;  
 
         facilities.forEach((facility) => {
             if (facility.count > 0) {
@@ -309,9 +310,19 @@ setInterval(() => {
             }
         });
 
-        updateDisplay();
+        // 🌟【重要！】ここにあった updateDisplay(); を削除しました！
+        // 代わりに、一番上の数字（所持金など）だけを超高速で書き換えます
+        moneyEl.textContent = formatNumber(gameState.money);
+        totalMoneyEl.textContent = formatNumber(gameState.totalMoney);
     }
 }, 100);
+
+// 🌟【新登場】ショップの見た目の更新（1000ミリ秒ごと ＝ 1秒間に1回）
+// 重いHTMLの書き換え（？？？の判定やグレーアウトなど）は、1秒に1回で十分に間に合います！
+setInterval(() => {
+    updateDisplay();
+}, 1000);
+
 
 
 // --- 8. 最初の一歩 ---
@@ -480,7 +491,9 @@ function saveGame() {
             cost: f.cost,
             count: f.count,
             totalEarned: f.totalEarned
-        }))
+        })),
+        // 🌟【新機能】保存した瞬間の「時間（タイムスタンプ）」を記録！
+        saveTime: Date.now()
     };
     // ブラウザに「clickRestaurantSave」という名前で保存
     localStorage.setItem('clickRestaurantSave', JSON.stringify(saveData));
@@ -517,9 +530,48 @@ function loadGame() {
                 facility.totalEarned = savedFacility.totalEarned || 0;
             }
         });
+
+        // 3. オフラインボーナスの計算
+        // 前回のセーブデータがあり、かつ毎秒の売上（mps）が1円以上の場合のみ計算する
+        if (saveData.saveTime && gameState.mps > 0) {
+            const now = Date.now();
+            // 離れていた時間を「秒数」にする（ミリ秒を1000で割る）
+            const passedSeconds = Math.floor((now - saveData.saveTime) / 1000);
+
+            // 【リロード対策】1分以上（60秒以上）離れていた場合だけボーナスを支給する
+            if (passedSeconds >= 60) {
+                // オフライン中の売上 = 離れていた秒数 * 毎秒の売上
+                const offlineEarnings = Math.floor(passedSeconds * gameState.mps * 0.3);
+
+
+                // 各種データにプラスする
+                gameState.money += offlineEarnings;
+                gameState.seasonMoney += offlineEarnings;
+                gameState.totalMoney += offlineEarnings;
+
+                // 画面を開いた瞬間にパッとポップアップでお知らせする！
+                // （少しだけ時間差をあけて出すと安全に表示される）
+                setTimeout(() => {
+                    alert(`おかえりなさい！\nあなたが離れていた ${formatSeconds(passedSeconds)} の間に、スタッフたちが 【 ${formatNumber(offlineEarnings)} 円 】 の売上（オフライン30%ボーナス）を稼いでくれました！💰`);
+                }, 500);
+            }
+        }
     } catch (e) {
         console.error("セーブデータの読み込みに失敗しました", e);
     }
+}
+
+// 【便利機能】秒数を「〇時間〇分〇秒」の読みやすい文字に変換する関数
+function formatSeconds(totalSeconds) {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    let result = "";
+    if (hours > 0) result += `${hours}時間`;
+    if (minutes > 0 || hours > 0) result += `${minutes}分`;
+    result += `${seconds}秒`;
+    return result;
 }
 
 // クッキークリッカー仕様：60秒（60000ミリ秒）ごとに自動セーブを実行する
