@@ -35,19 +35,18 @@
     <!-- 現在のお店のランク名を表示する場所 -->
     <div id="restaurant-rank">ランク1: 小さな屋台</div>
 
-    <!-- 🎪 お客さんがトコトコ歩くアニメーションの舞台（CSSお任せ版に最適化） -->
+    <!-- 🎪 お客さんがトコトコ歩くアニメーションの舞台 -->
     <div id="restaurant-stage">
         <!-- 🏪 レストラン本体と、お金が浮かび上がる場所 -->
         <div id="restaurant-building-box">
-            <!-- 💡 修正：class="hidden" を除去。表示・非表示はすべてCSSが自動制御します -->
-            <div id="coin-effect">💰</div>
-            <div id="restaurant-visual">🏪</div>
+            <div id="coin-effect"></div>
+            <!-- 💡 修正：<img> タグに変更し、最初はランク1の画像をセットします -->
+            <img id="restaurant-visual" src="img/restaurant/rank1.png" alt="お店の外観">
         </div>
 
-        <!-- 💡 修正：<img> タグに変更。srcに「左向きの画像パス」をセットします -->
-        <!-- 🌟 start-animation クラスをはじめから付与しておくことで、読み込みと同時に自動ループします -->
-        <img id="live-guest" class="walking-guest start-animation" src="img/guest_left.png" alt="客">
+        <img id="live-guest" class="walking-guest start-animation" src="img/guest/guest1.png" alt="客">
     </div>
+
 
 </div>
 

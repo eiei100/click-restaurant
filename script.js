@@ -169,7 +169,7 @@ function updateDisplay() {
 }
 
 
-// --- 4-2 お店の進化をチェックして画面を更新する関数 ---
+// --- 4-2-1 お店の進化をチェックして画面を更新する関数 ---
 function checkRestaurantEvolution() {
     // ランクデータを上から順番に見て、条件をクリアしている「一番高いランク」を探す
     let currentRank = restaurantRanks[0];
@@ -185,6 +185,49 @@ function checkRestaurantEvolution() {
     rankEl.textContent = currentRank.name;
     visualEl.textContent = currentRank.visual;
 }
+
+// 4-2-2 背景
+// --- 🌟【新機能】24時間現実時間リンク背景システム ---
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("📢 背景システム：ページ読み込みを検知しました！");
+    
+    // ページが開いた瞬間に現在の時間をチェックして背景をセット
+    updateTimeBasedBackground();
+
+    // その後は1分（60000ミリ秒）ごとに現在の時間をチェックして自動で背景を変える
+    setInterval(updateTimeBasedBackground, 60000);
+});
+
+function updateTimeBasedBackground() {
+    const stageEl = document.getElementById('restaurant-stage');
+    
+    // 🚨 原因チェック1：そもそもHTMLの「restaurant-stage」が見つからない場合
+    if (!stageEl) {
+        console.error("❌ エラー：HTMLの中に 'restaurant-stage' というIDの箱が見つかりません！");
+        return;
+    }
+
+    const currentHour = new Date().getHours();
+    let bgImage = "img/background/bg_day.png"; 
+
+    if (currentHour >= 6 && currentHour < 16) {
+        bgImage = "img/background/bg_day.png";
+    } else if (currentHour >= 16 && currentHour < 19) {
+        bgImage = "img/background/bg_evening.png";
+    } else {
+        bgImage = "img/background/bg_night.png";
+    }
+
+    console.log(`🕒 現在の現実時間: ${currentHour}時です。読み込む画像: ${bgImage}`);
+
+    // CSS変数を使って、用意した背景画像をステージに流し込む
+    stageEl.style.setProperty('--current-bg', `url("${bgImage}")`);
+    
+    // 💡 念のための強制対策：CSS変数が効かない場合のために、直接背景画像を上書きします
+    stageEl.style.backgroundImage = `url("${bgImage}")`;
+}
+
+
 
 // --- 4-3 指定した数（1, 10, 100）を一括購入したときの「合計コスト」と「最終価格」を計算する関数 ---
 function calculateMultiBuy(baseCost, amount) {
