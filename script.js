@@ -275,34 +275,45 @@ buyAmountRadios.forEach((radio) => {
 
 // --- 4-5 どんな超巨大数字でも海外ゲーム風の単位（K, M, B, T...）に自動変換する関数 ---
 function formatNumber(num) {
+    // 🌟【安全装置】もし数字以外が入ってきたら強制的に "0" を返す
+    if (num === undefined || num === null || isNaN(num)) return "0";
+
     const value = Math.floor(num);
 
     // 1,000未満ならそのままの数字を返す
-    if (value < 1000) return value;
+    if (value < 1000) return value.toString();
 
-    // 海外ゲームお馴染みの単位リスト（3桁=1,000倍ごとに名前が変わります）
+    // 海外ゲームお馴染みの単位リスト
     const units = [
-        { value: 1e3,  name: "K" },  // Thousand (千)
-        { value: 1e6,  name: "M" },  // Million (百万)
-        { value: 1e9,  name: "B" },  // Billion (十億)
-        { value: 1e12, name: "T" },  // Trillion (一兆)
+        { value: 1e3,  name: "K" },  // Thousand
+        { value: 1e6,  name: "M" },  // Million
+        { value: 1e9,  name: "B" },  // Billion
+        { value: 1e12, name: "T" },  // Trillion
         { value: 1e15, name: "Qa" }, // Quadrillion
         { value: 1e18, name: "Qi" }, // Quintillion
         { value: 1e21, name: "Sx" }, // Sextillion
         { value: 1e24, name: "Sp" }, // Septillion
         { value: 1e27, name: "Oc" }, // Octillion
         { value: 1e30, name: "No" }, // Nonillion
-        { value: 1e33, name: "Dc" }  // Decillion...（将来ここをいくらでも増やせます！）
+        { value: 1e33, name: "Dc" }  // Decillion
     ];
 
     // リストの「下（大きい単位）」から順番にチェックしていく
-    for (let i = units.length -1; i >= 0; i--) {
+    for (let i = units.length - 1; i >= 0; i--) {
         if (value >= units[i].value) {
-            // その単位で割り算をして、小数点以下2桁まで綺麗に出す（例：1.50 M）
-            return (value / units[i].value).toFixed(2) + " " + units[i].name;
+            // 🌟【改善】一度小数点以下2桁まで計算
+            let formatted = (value / units[i].value).toFixed(2);
+            
+            // 🌟【重要】末尾の「.00」や「0」を綺麗にカットする（例: 1.00 K ➔ 1 K / 1.50 M ➔ 1.5 M）
+            formatted = parseFloat(formatted).toString();
+            
+            return formatted + " " + units[i].name;
         }
     }
+
+    return value.toString();
 }
+
 
 // --- 5-1. 料理を作るボタン（メインクリック）を押した時 ---
 mainClickBtn.addEventListener('click', () => {
@@ -313,7 +324,7 @@ mainClickBtn.addEventListener('click', () => {
     updateDisplay();
 });
 
-// --- 5-2. 客の来店ミニアニメーション演出（今世売上1%連動＆ダブり防止版） ---
+// --- 5-2. 客の来店ミニアニメーション演出（完全同期・ズレゼロ版） ---
 const GUEST_IMAGES = [
     "img/guest/guest1.png",
     "img/guest/guest2.png",
@@ -324,6 +335,7 @@ const GUEST_IMAGES = [
 ];
 
 let lastGuestIndex = -1;
+let coinTimeoutId = null; // 🌟 タイマーのダブり防止用
 
 document.addEventListener("DOMContentLoaded", () => {
     const guestEl = document.getElementById('live-guest');
@@ -333,23 +345,24 @@ document.addEventListener("DOMContentLoaded", () => {
     changeNextGuest(guestEl);
     guestEl.classList.add('start-animation');
 
-    // アニメーションが1周終わるごとに画像を切り替える（ズレ防止）
+    // 🌟 ズレ防止：アニメーションの「開始時」と「ループ時」に、お会計タイマーを仕掛ける
+    setupCoinTiming();
     guestEl.addEventListener('animationiteration', () => {
-        changeNextGuest(guestEl);
+        changeNextGuest(guestEl); // 次の客へ画像切り替え
+        setupCoinTiming();        // お会計タイマーを再セット
     });
-
-    // 💰 お客さんの来店とお金を完全に連動させる仕掛け
-    // お会計のタイミング（CSSで💰が出る3.8秒後）を狙って、実際にお金を増やす
-    setTimeout(() => {
-        addGuestRevenue();
-
-        // 以降、アニメーションの周期（7.2秒）ごとに定期的にお金を増やす
-        setInterval(() => {
-            addGuestRevenue();
-        }, 7200);
-
-    }, 3800); 
 });
+
+// 🎯 お客さんがお会計を済ませて、店から出てきた瞬間（4.8秒後）を正確に狙い撃つ関数
+function setupCoinTiming() {
+    if (coinTimeoutId) clearTimeout(coinTimeoutId); // 古いタイマーを破棄
+
+    // 全体7.2秒の66.7%（店から出てくる瞬間）は「4800ミリ秒後」です（7200ms × 0.667 ≒ 4800ms）
+    coinTimeoutId = setTimeout(() => {
+        addGuestRevenue();
+    }, 4800); 
+}
+
 
 // お客さんがお会計したときに売上を増やす関数（💰と金額の完全連結版）
 function addGuestRevenue() {
@@ -360,11 +373,15 @@ function addGuestRevenue() {
     gameState.seasonMoney += guestProfit;
     gameState.totalMoney += guestProfit;
 
-    // 🌟 【修正】💰と金額を完全にドッキングしてエフェクトに流し込む
+    // 💰と金額を完全にドッキングしてエフェクトに流し込む
     const coinEffectEl = document.getElementById('coin-effect');
     if (coinEffectEl) {
-        // 例：「💰 + 1.50 K」というひとかたまりの文字を作る
         coinEffectEl.textContent = `💰 +${formatNumber(guestProfit)}`;
+        
+        // 🌟 アニメーションクラスを一度消して、すぐ付け直すことで「今」エフェクトを発生させる
+        coinEffectEl.classList.remove('show-coin');
+        void coinEffectEl.offsetWidth; // 魔法の一行（ブラウザにリセットを強制認識させる）
+        coinEffectEl.classList.add('show-coin');
     }
 
     // 画面の表示を最新データに書き換える
@@ -379,8 +396,7 @@ function addGuestRevenue() {
     }
 }
 
-
-// 次のお客さんをランダムに決定する関数（変更なし）
+// 次のお客さんをランダムに決定する関数（<img>タグ完全対応版）
 function changeNextGuest(guestEl) {
     let randomIndex;
     do {
@@ -388,8 +404,11 @@ function changeNextGuest(guestEl) {
     } while (randomIndex === lastGuestIndex && GUEST_IMAGES.length > 1);
     lastGuestIndex = randomIndex;
     const nextGuest = GUEST_IMAGES[randomIndex];
-    guestEl.style.setProperty('--guest-img', `url("${nextGuest}")`);
+    
+    // 🌟 CSS変数ではなく、HTMLの<img>タグの「src」を直接書き換える
+    guestEl.src = nextGuest;
 }
+
 
 
 

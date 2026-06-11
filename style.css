@@ -370,15 +370,17 @@ body {
 }
 
 
-/* 🏪 レストランの建物（280pxのサイズを維持したまま、位置を少し下に下げました） */
+/* 🏪 レストランの建物（280pxの基地として画面中央に強制固定） */
 #restaurant-building-box {
     position: absolute;
-    /* 🌟【位置調整】topの数値を「50%」から「60%」へ変更し、お店全体を少し下に下げました */
     top: 60%;                 
     left: 50%;
+    /* 🌟【超重要】transformの translateX(-50%) とは別に、
+       基地自体のサイズ（280px）をあらかじめがっちり確保して、左右にブレる余地をゼロにします */
     transform: translate(-50%, -50%); 
-    width: 280px;             
-    height: 280px;            
+    width: 280px !important;  /* !importantでサイズを強制固定 */
+    height: 280px !important;
+    display: block;           /* flexからblockに戻して、中の要素の幅に引っ張られないようにする */
     z-index: 5;               
 }
 
@@ -391,13 +393,14 @@ body {
     object-fit: contain;      
 }
 
-/* 💰 お金とテキストが完全連結したエフェクト（出現位置をお店に近づけました） */
+/* 💰 お金とテキストが完全連結したエフェクト（初期状態は透明で待機） */
 #coin-effect {
     position: absolute;
-    /* 🌟【位置調整】数値を「-40px」から「10px」へ変更！これで文字がお店のすぐ近くから出現します */
     top: 10px;               
     left: 50%;                
-    transform: translateX(-50%);
+    transform: translateX(-50%); 
+    transform-origin: center center;
+    text-align: center;       
     font-size: 42px;          
     font-weight: bold;
     color: #4cd137;           
@@ -406,32 +409,34 @@ body {
     opacity: 0; 
     z-index: 10;
     pointer-events: none;
-    animation: coinLoop 7.2s ease-out infinite;
+    /* 🌟 infinite（自動ループ）の命令を削除しました */
 }
 
-/* 🎬 コインと文字が一緒に弾け飛ぶアニメーション（お店に近い位置からのジャンプに最適化） */
-@keyframes coinLoop {
-    0%, 50% { 
+/* 🌟【新設】JSでこのクラスがついた瞬間だけ、1回だけ垂直にジャンプして消える */
+#coin-effect.show-coin {
+    animation: coinJump 1.2s ease-out forwards; 
+}
+
+/* 🎬 左右に1ミリもブレず、ド真ん中から真っ直ぐお空へ昇天するアニメーション */
+@keyframes coinJump {
+    0% { 
         opacity: 0; 
-        transform: translate(-50%, 0) scale(0.5); 
+        transform: translateX(-50%) translateY(0); 
     } 
-    /* お会計の瞬間：お店の目の前から元気に「ぬっ！」と少しだけ上に飛び出す */
-    53% { 
+    /* お会計の瞬間：パッと現れて少し上に跳ねる */
+    15% { 
         opacity: 1; 
-        transform: translate(-50%, -30px) scale(1.1); /* 🌟 初期の飛び出し高さをマイルドに調整 */
+        transform: translateX(-50%) translateY(-40px); 
     } 
-    56% { 
+    /* 視認しやすいように、少しの間その場で文字をキープ */
+    70% { 
         opacity: 1; 
-        transform: translate(-50%, -30px) scale(1.0); 
+        transform: translateX(-50%) translateY(-40px); 
     } 
-    /* 消滅：そのままお店の屋根を越えて上空へフワ〜ッと昇天 */
-    64% { 
+    /* 消滅：さらに上にスッと昇りながら消えていく */
+    100% { 
         opacity: 0; 
-        transform: translate(-50%, -80px) scale(0.8);  /* 🌟 消滅する高さも合わせて低めに調整 */
-    } 
-    66.6%, 100% { 
-        opacity: 0; 
-        transform: translate(-50%, 0) scale(0.5); 
+        transform: translateX(-50%) translateY(-90px); 
     } 
 }
 
@@ -439,27 +444,26 @@ body {
 /* 🚶 お客さんのベース設定 */
 .walking-guest {
     position: absolute;
-    /* 🌟 お店が超巨大になったので、入り口の足元と手前の道路にぴったり重なるように高さを 45px に調整 */
     bottom: 45px;            
     left: -100px; 
     width: 60px;             
     height: auto;            
     opacity: 1;
     z-index: 6;              
-    content: var(--guest-img); 
+    /* 🌟 HTMLのsrc属性と競合して画像が消える原因になっていたcontent変数を完全に削除 */
 }
 
-/* 💡 アニメーション開始クラス（変更なし） */
+/* 💡 アニメーション開始クラス */
 .start-animation {
     animation: guestLoop 7.2s linear infinite;
 }
 
-/* 🎬 お客さんの動き（位置と不透明度だけのシンプル版・変更なし） */
+/* 🎬 お客さんの動き（バグっていた％の時系列順をきれいに整理） */
 @keyframes guestLoop {
-    0%   { left: -100px; opacity: 1; }
+    0%    { left: -100px; opacity: 1; }
     16.6% { left: 10%;    opacity: 1; }
-    33.3% { left: 46%;    opacity: 1; }
-    25%   { opacity: 1; } /* 💡 途中でチラつかないように安全用に不透明度を維持 */
+    25%   { left: 28%;    opacity: 1; } /* 💡 33.3%の前に移動させ、動きを滑らかに補正 */
+    33.3% { left: 46%;    opacity: 1; } /* 💡 この瞬間にJSがお会計（2.4秒後）を正確に発火 */
     50.0% { left: 46%;    opacity: 0; }
     66.6% { left: 46%;    opacity: 0; }
     66.7% { left: 46%;    opacity: 1; } 
