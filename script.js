@@ -36,19 +36,20 @@ const facilities = [
 
 
 
-// 2-2. ランク一覧
+// --- 2-2. ランク一覧（AI生成の画像ファイル名と連動） ---
 const restaurantRanks = [
-    { threshold: 0, name: 'ランク1: 賑やかな夜の屋台', visual: '🎪' },
-    { threshold: 500, name: 'ランク2: 行列のできる下町食堂', visual: '🏪' }, // 街のお店へ
-    { threshold: 50000, name: 'ランク3: 駅前のモダンカフェ', visual: '☕' },
-    { threshold: 2000000, name: 'ランク4: 憧れの老舗高級ホテル', visual: '🏰' }, // 豪華なお城へ
-    { threshold: 100000000, name: 'ランク5: 地上200階の空中レストラン', visual: '🏙️' }, // 超高層ビル
-    { threshold: 5000000000, name: 'ランク6: 豪華客船の洋上メインダイニング', visual: '🚢' }, // 巨大船
-    { threshold: 1e12, name: 'ランク7: 月面ドーム・ファーストフード店', visual: '🛸' }, // UFO・宇宙基地風
-    { threshold: 1e15, name: 'ランク8: 銀河縦断美食クルーズ超特急', visual: '🚀' }, // 宇宙船
-    { threshold: 1e18, name: 'ランク9: 超次元ブラックホール異界食堂', visual: '🌀' }, // 次元迷宮
-    { threshold: 1e21, name: 'ランク10: 全知全能の全宇宙満腹聖殿', visual: '🌌' } // 銀河そのもの
+    { threshold: 0,          name: 'ランク1: 賑やかな夜の屋台',        img: 'rank1.png' },
+    { threshold: 500,        name: 'ランク2: 行列のできる下町食堂',    img: 'rank2.png' },
+    { threshold: 50000,      name: 'ランク3: 駅前のモダンカフェ',      img: 'rank3.png' },
+    { threshold: 2000000,    name: 'ランク4: 憧れの老舗高級ホテル',    img: 'rank4.png' },
+    { threshold: 100000000,  name: 'ランク5: 地上200階の空中レストラン', img: 'rank5.png' },
+    { threshold: 5000000000, name: 'ランク6: 豪華客船の洋上メインダイニング', img: 'rank6.png' },
+    { threshold: 1e12,       name: 'ランク7: 月面ドーム・ファーストフード店', img: 'rank7.png' },
+    { threshold: 1e15,       name: 'ランク8: 銀河縦断美食クルーズ超特急',  img: 'rank8.png' },
+    { threshold: 1e18,       name: 'ランク9: 超次元ブラックホール異界食堂', img: 'rank9.png' },
+    { threshold: 1e21,       name: 'ランク10: 全知全能の全宇宙満腹聖殿',  img: 'rank10.png' }
 ];
+
 
 // --- 2-3. 店舗設備（快適度）アイテムのデータ ---
 const comfortItems = [
@@ -72,7 +73,7 @@ const mainClickBtn = document.getElementById('main-click-btn');
 const shopArea = document.getElementById('shop-area'); // 空っぽにしたショップの箱
 const tooltipEl = document.getElementById('tooltip'); // 【追加】自作ポップアップの箱を取得！
 const rankEl = document.getElementById('restaurant-rank');     // ランク名を表示する場所
-const visualEl = document.getElementById('restaurant-visual'); // 絵文字を表示する場所
+const visualEl = document.getElementById('restaurant-visual'); // レストランの画像を表示する場所
 
 
 // --- 4-1. 画面表示を最新のデータに更新する関数 ---
@@ -175,16 +176,28 @@ function checkRestaurantEvolution() {
     let currentRank = restaurantRanks[0];
 
     restaurantRanks.forEach((rank) => {
-        // 累計売上（totalMoney）を基準にチェック
-        if (gameState.totalMoney >= rank.threshold) {
+        // 💡 修正ポイント1：基準を通算（totalMoney）から、転生でリセットされる「今世の売上（seasonMoney）」に変更！
+        if (gameState.seasonMoney >= rank.threshold) {
             currentRank = rank;
         }
     });
 
-    // 画面の文字と絵文字を、決定したランクのものに書き換える
-    rankEl.textContent = currentRank.name;
-    visualEl.textContent = currentRank.visual;
+    // 画面の文字を決定したランクのものに書き換える
+    if (rankEl) rankEl.textContent = currentRank.name;
+    
+    // 🌟 修正ポイント2：絵文字ではなく、AIで生成した画像を読み込むように処理を変更！
+    if (visualEl) {
+        // 例：img/restaurant/rank1.png などのパスを作る
+        const nextSrc = `img/restaurant/${currentRank.img}`;
+        
+        // 💡 無駄な処理を減らす対策：すでにその画像が表示されている場合は、書き換えない（動作が軽くなります）
+        if (!visualEl.src.endsWith(nextSrc)) {
+            visualEl.src = nextSrc;
+            console.log(`🏪 お店が進化しました！現在の外観: ${currentRank.name}`);
+        }
+    }
 }
+
 
 // 4-2-2 背景
 // --- 🌟【新機能】24時間現実時間リンク背景システム ---

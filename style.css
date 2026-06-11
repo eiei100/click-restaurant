@@ -370,34 +370,35 @@ body {
 }
 
 
-/* 🏪 レストランの建物 */
+/* 🏪 レストランの建物（280pxのサイズを維持したまま、位置を少し下に下げました） */
 #restaurant-building-box {
     position: absolute;
-    /* 💡 自作の背景画像の「地面（お店の敷地）」の位置に合わせて、％を上下させて調整してください */
-    top: 55%;                 
+    /* 🌟【位置調整】topの数値を「50%」から「60%」へ変更し、お店全体を少し下に下げました */
+    top: 60%;                 
     left: 50%;
     transform: translate(-50%, -50%); 
-    width: 120px;             
-    height: 120px;
+    width: 280px;             
+    height: 280px;            
     z-index: 5;               
 }
 
 /* 🏪 実際のお店（画像用ベース設定） */
 #restaurant-visual {
-    width: 100%;              /* 🌟親の120pxいっぱいに綺麗に広げる */
-    height: auto;             /* 縦横比を維持 */
+    width: 100% !important;   
+    height: 100% !important;  
     display: block;
     user-select: none;
+    object-fit: contain;      
 }
 
-/* 💰 お金とテキストが完全連結したエフェクト */
+/* 💰 お金とテキストが完全連結したエフェクト（出現位置をお店に近づけました） */
 #coin-effect {
     position: absolute;
-    /* 🌟 120pxの画像の「真上辺」を基準に、そこからさらに30px上に配置 */
-    top: -30px;               
+    /* 🌟【位置調整】数値を「-40px」から「10px」へ変更！これで文字がお店のすぐ近くから出現します */
+    top: 10px;               
     left: 50%;                
     transform: translateX(-50%);
-    font-size: 36px;          
+    font-size: 42px;          
     font-weight: bold;
     color: #4cd137;           
     text-shadow: 2px 2px 0px #ffffff, -2px -2px 0px #ffffff, 2px -2px 0px #ffffff, -2px 2px 0px #ffffff;
@@ -408,26 +409,25 @@ body {
     animation: coinLoop 7.2s ease-out infinite;
 }
 
-
-/* 🎬 コインと文字が一緒に弾け飛ぶアニメーション（変更なし、高さだけ微調整） */
+/* 🎬 コインと文字が一緒に弾け飛ぶアニメーション（お店に近い位置からのジャンプに最適化） */
 @keyframes coinLoop {
     0%, 50% { 
         opacity: 0; 
         transform: translate(-50%, 0) scale(0.5); 
     } 
-    /* お会計の瞬間：💰と数字が一緒になって「ぬっ！」と2個並んで飛び出す */
+    /* お会計の瞬間：お店の目の前から元気に「ぬっ！」と少しだけ上に飛び出す */
     53% { 
         opacity: 1; 
-        transform: translate(-50%, -60px) scale(1.1); 
+        transform: translate(-50%, -30px) scale(1.1); /* 🌟 初期の飛び出し高さをマイルドに調整 */
     } 
     56% { 
         opacity: 1; 
-        transform: translate(-50%, -60px) scale(1.0); 
+        transform: translate(-50%, -30px) scale(1.0); 
     } 
-    /* 消滅：一寸のズレもなく、2つ仲良く上空へフワ〜ッと昇天しながら消えていく */
+    /* 消滅：そのままお店の屋根を越えて上空へフワ〜ッと昇天 */
     64% { 
         opacity: 0; 
-        transform: translate(-50%, -100px) scale(0.8); 
+        transform: translate(-50%, -80px) scale(0.8);  /* 🌟 消滅する高さも合わせて低めに調整 */
     } 
     66.6%, 100% { 
         opacity: 0; 
@@ -439,43 +439,29 @@ body {
 /* 🚶 お客さんのベース設定 */
 .walking-guest {
     position: absolute;
-    /* 💡 自作の背景画像の「道路（歩く場所）」の高さに合わせて、pxを上下させて調整してください */
-    bottom: 50px;            
+    /* 🌟 お店が超巨大になったので、入り口の足元と手前の道路にぴったり重なるように高さを 45px に調整 */
+    bottom: 45px;            
     left: -100px; 
     width: 60px;             
     height: auto;            
     opacity: 1;
-    z-index: 4;              
+    z-index: 6;              
     content: var(--guest-img); 
 }
-
-
-/* （以下、.start-animation や @keyframes guestLoop は前回のままでOKです！） */
-
 
 /* 💡 アニメーション開始クラス（変更なし） */
 .start-animation {
     animation: guestLoop 7.2s linear infinite;
 }
 
-/* 🎬 お客さんの動き（位置と不透明度だけのシンプル版） */
+/* 🎬 お客さんの動き（位置と不透明度だけのシンプル版・変更なし） */
 @keyframes guestLoop {
-    /* 【登場：左外（-100px）から左道（10%）へ】 */
     0%   { left: -100px; opacity: 1; }
     16.6% { left: 10%;    opacity: 1; }
-
-    /* 【入店：左道（10%）からお店の前（46%）へ】 */
     33.3% { left: 46%;    opacity: 1; }
-
-    /* 【食事中：お店の中で消える】 */
+    25%   { opacity: 1; } /* 💡 途中でチラつかないように安全用に不透明度を維持 */
     50.0% { left: 46%;    opacity: 0; }
-
-    /* 【お会計：お店の中で透明のまま待機】 */
     66.6% { left: 46%;    opacity: 0; }
-    
-    /* 【再登場：お会計が終わって店から現れる（向きはそのまま）】 */
     66.7% { left: 46%;    opacity: 1; } 
-
-    /* 【退場：お店の前（46%）から右外（115%）へハケていく】 */
     100%  { left: 115%;   opacity: 1; }
 }
