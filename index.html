@@ -8,12 +8,19 @@
     </head>
 <body>
 
+    <!-- 🌟【新登場】本家クッキークリッカー風・ティッカーニュース速報帯 -->
+    <div id="news-ticker-container">
+        <div id="news-ticker-text">「クリック・レストランへようこそ！本日のピザは大変美味しく焼き上がっております。」</div>
+    </div>
+    
     <!-- ゲーム全体を包むコンテナ（ここを3列に並べます） -->
     <div id="game-container">
         
-        <!-- 1. 左列：クリックと売上情報 -->
+                <!-- 1. 左列：クリックと売上情報 -->
         <div id="left-panel">
             <h1>売上: <span id="money">0</span> 円</h1>
+            <!-- 🌟【新登場】今世（この周回）で稼いだ売上の表示を追加 -->
+            <p>今世の売上: <span id="season-money">0</span> 円</p>
             <p>毎秒の売上: <span id="mps">0</span> 円</p>
             <!-- 【追加】これまでに稼いだすべての合計金額を表示する場所 -->
             <p>通算の売上: <span id="total-money">0</span> 円</p>
@@ -22,6 +29,7 @@
                 <button id="main-click-btn">🍳 料理を作る！</button>
             </div>
         </div>
+
 
         <!-- 2. 中央列：お店の発展・外観エリア -->
 <div id="center-panel">
@@ -40,14 +48,32 @@
         <!-- 🏪 レストラン本体と、お金が浮かび上がる場所 -->
         <div id="restaurant-building-box">
             <div id="coin-effect"></div>
-            <!-- 💡 修正：<img> タグに変更し、最初はランク1の画像をセットします -->
             <img id="restaurant-visual" src="img/restaurant/rank1.png" alt="お店の外観">
+            
+            <!-- 🌟【新登場】お店の右下にちょこんと立つ、クリックできる口コミ看板画像 -->
+            <img id="review-signboard" src="img/signboard.png" alt="レビュー看板" title="レビューを見る">
         </div>
 
         <img id="live-guest" class="walking-guest start-animation" src="img/guest/guest1.png" alt="客">
     </div>
 
+    <!-- 🌟【新登場】看板をクリックしたときだけ浮き出る「グルメレビュー一覧」モーダル -->
+    <div id="review-modal" class="modal-overlay hidden">
+        <div class="modal-content review-modal-content">
+            <h3>⭐ グルメアプリの口コミ一覧</h3>
+            
+            <!-- 現在の総合評価を大きく出す場所 -->
+            <div class="review-summary">
+                <span id="modal-total-stars">⭐⭐⭐⭐⭐</span>
+                <span id="modal-buff-text">(売上等倍)</span>
+            </div>
 
+            <!-- JavaScriptがここに過去の口コミをドバドバ流し込みます -->
+            <div id="modal-review-list"></div>
+
+            <button id="close-review-btn" class="close-btn">閉じる</button>
+        </div>
+    </div>
 </div>
 
 
@@ -80,37 +106,45 @@
     </div>
 
     <!-- 【設定】設定画面のポップアップ（モーダル） -->
-    <div id="settings-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3>⚙️ 設定メニュー</h3>
-            <p>ゲームの進行状況をすべて初期状態に戻します。</p>
-
-            <!-- セーブデータの完全削除ボタン -->
-            <button id="reset-game-btn" class="danger-btn">⚠️ セーブデータを削除する</button>
-            <br>
-            <button id="close-settings-btn" class="close-btn">閉じる</button>
+<div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h3>⚙️ 設定メニュー</h3>
+        
+        <!-- 🌟【修正】HTMLからstyleを完全に消去し、CSSで制御するための専用のクラス名を付けました -->
+        <div class="settings-row">
+            <button id="bgm-toggle-btn" class="menu-btn audio-toggle-design">🔊 BGM: ON</button>
         </div>
+
+        <p>ゲームの進行状況をすべて初期状態に戻します。</p>
+        <!-- セーブデータの完全削除ボタン -->
+        <button id="reset-game-btn" class="danger-btn">⚠️ セーブデータを削除する</button>
+        <br>
+        <button id="close-settings-btn" class="close-btn">閉じる</button>
     </div>
+</div>
+
+
 
 <!-- 【転生】 転生画面のポップアップ（モーダル） -->
-    <div id="ascend-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3>🌌 転生（プレステージ）</h3>
-            <p>現在のすべての売上と施設をリセットし、永久に売上がアップする「天界の調味料」を手に入れますか？</p>
+<div id="ascend-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h3>🌌 転生（プレステージ）</h3>
+        <!-- 🌟【ここを修正】最低条件の「1兆円」を分かりやすく明記 -->
+        <p>今世の売上が<strong>1兆（1 T）円以上</strong>になると、すべての売上と施設をリセットし、永久に売上がアップする「天界の調味料」を手に入れることができます。</p>
 
-            <!-- 【修正】styleを消して、クラス名（prestige-box）にしました -->
-            <div class="prestige-box">
-                現在の天界の調味料: <span id="current-chips">0</span>個<br>
-                <!-- 【修正】styleを消して、クラス名（prestige-sub）にしました -->
-                <span class="prestige-sub">今回の転生で獲得: +<span id="incoming-chips">0</span> 個</span>
-                <p>※1個につき全体の売上・生産力が +1% アップします</p>
-            </div>
-            
-            <button id="do-ascend-btn" class="action-btn" disabled>天界へ旅立つ</button>
-            <br>
-            <button id="close-ascend-btn" class="close-btn">戻る</button>
+        <div class="prestige-box">
+            現在の天界の調味料: <span id="current-chips">0</span>個<br>
+            <span class="prestige-sub">今回の転生で獲得: +<span id="incoming-chips">0</span> 個</span>
+            <!-- 🌟【ここを修正】本家仕様の「+1%」に説明文を統一 -->
+            <p>※1個につき全体の売上・生産力が +1% アップします</p>
         </div>
+        
+        <button id="do-ascend-btn" class="action-btn" disabled>天界へ旅立つ</button>
+        <br>
+        <button id="close-ascend-btn" class="close-btn">戻る</button>
     </div>
+</div>
+
 
     <!-- JavaScriptファイルを読み込む -->
     <script src="script.js"></script>

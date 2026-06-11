@@ -43,14 +43,34 @@ body {
     align-items: center;
 }
 
-/* 3. 右列：ショップエリア */
+/* 🏢 3. 右列：ショップエリア（タイトルやタブを固定する親の箱） */
 #right-panel {
-    flex: 1; /* 横幅の比率 */
-    max-height: 700px;    /* ショップの最大縦幅を700pxに固定 */
-    overflow-y: auto;    /* 自動で縦スクロールバーを出す */
-    padding-right: 10px;  /* スクロールバーとボタンが重ならないすき間 */
-    position: relative;   /* 【修正】JSでツールチップを綺麗に追従させるため必須 */
+    flex: 1;              /* 横幅の比率（元のまま） */
+    max-height: 700px;    /* ショップ全体の最大縦幅を700pxに固定（元のまま） */
+    position: relative;   /* ツールチップ追従用（元のまま） */
+    padding-right: 5px;   
+    
+    /* 🌟【大改造】中身を上から下へ綺麗に整列させ、ショップ全体としては絶対に画面外へはみ出さないようにロックします */
+    display: flex;
+    flex-direction: column; 
+    overflow: hidden;     /* 🌟 親はスクロールさせず、はみ出たボタンを隠して子にパスする */
+    box-sizing: border-box;
 }
+
+/* 🌟【新設】ボタンがJavaScriptで自動量産される売り場エリア（施設用・店舗設備用共通の箱） */
+.shop-continer {
+    width: 100%;
+    
+    /* 🌟【最重要】上のタイトル、タブ、購入数セレクターの分を引いた「残りの全スペース」を売り場の縦幅にします */
+    flex: 1; 
+    
+    /* 🌟【最重要】親から引っ越してきた魔法の1行。ボタンが入り切らなくなったらここだけがスイスイ縦スクロールします！ */
+    overflow-y: auto !important; 
+    
+    padding-right: 10px;  /* 🌟 スクロールバーと施設ボタンが重ならないための元の隙間 */
+    box-sizing: border-box;
+}
+
 
 /* 中央列の文字や絵文字の見た目 */
 #restaurant-rank {
@@ -139,28 +159,88 @@ body {
     display: none !important;
 }
 
-/* クリックした時に飛び出す料理エフェクトの見た目 */
+/* 🍳 料理ボタンを包む親のエリア（元の綺麗なレイアウトをがっちり維持！） */
+#click-area {
+    position: relative;     /* 🌟【超重要】これで手動タップの文字と画像をボタン内に正確にロックします */
+    width: 100%;            /* 左パネルの横幅いっぱいに広げる設定 */
+    display: block;         /* 上下のテキストと綺麗に縦並びにする設定 */
+    margin-top: 20px;       /* 売上テキストとのちょうどいい隙間 */
+}
+
+/* 🍳 料理を作るメインボタン自体の設定 */
+#main-click-btn {
+    width: 100%;            /* 親のclick-areaに合わせて横幅いっぱいに */
+    padding: 20px;          /* 押しやすいように内側の厚みを確保 */
+    font-size: 18px;        /* 文字の見やすさ */
+    font-weight: bold;
+    cursor: pointer;
+    box-sizing: border-box; /* 絶対に横にはみ出さないようにガードする魔法の1行 */
+}
+
+
+/* =================================================================
+   💥 以下はタップ位置連動エフェクト用（親のレイアウトを1ミリも邪魔しません）
+   ================================================================= */
+
+/* 💸 連打した指の真下から湧き出る金額テキスト（🍳 +〇〇） */
+.click-pop-effect {
+    position: absolute;     /* 🌟 click-areaの枠の中を基準に配置 */
+    font-size: 28px;    
+    font-weight: bold;
+    color: #4cd137;           
+    text-shadow: 2px 2px 0px #ffffff, -2px -2px 0px #ffffff, 2px -2px 0px #ffffff, -2px 2px 0px #ffffff;
+    white-space: nowrap;
+    pointer-events: none;   /* マウスや指の連打を絶対に邪魔しない設定 */
+    z-index: 101;           /* 料理画像よりも少し手前に見えるようにする数値 */
+    animation: clickJumpUp 0.8s ease-out forwards; 
+}
+
+@keyframes clickJumpUp {
+    0% { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) translateY(0) scale(0.6); 
+    } 
+    15% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) translateY(-20px) scale(1.1); /* パッと出て少し拡大 */
+    } 
+    80% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) translateY(-30px) scale(1.0); 
+    } 
+    100% { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) translateY(-70px) scale(0.8); /* 上に昇りながら消去 */
+    } 
+}
+
+/* 🍕 連打した指の真下から飛び出すランダム料理画像（卵、バーガー、ピザ、寿司） */
 .click-effect {
     position: absolute;
-    width: 32px;  /* 横幅を32pxに固定して小さくする */
-    height: 32px; /* 縦幅も32pxに固定して小さくする */
+    width: 32px;  
+    height: 32px; 
+    
+    /* 🌟【中心ズレ根絶】画像の左上ではなく、画像の「ど真ん中」が指の真芯に重なるように調整 */
+    margin-left: -16px;     /* 横幅32pxのちょうど半分マイナス */
+    margin-top: -16px;      /* 縦幅32pxのちょうど半分マイナス */
     
     pointer-events: none;
     animation: floatUpAndFade 0.8s ease-out forwards;
     z-index: 100;
 }
 
-/* 上にフワッと浮き上がって回転しながら消えるルール */
 @keyframes floatUpAndFade {
     0% {
         transform: translateY(0) scale(1) rotate(0deg);
         opacity: 1;
     }
     100% {
-        transform: translateY(-100px) scale(1.4) rotate(45deg);
+        transform: translateY(-100px) scale(1.4) rotate(45deg); /* 綺麗に回転しながら上昇 */
         opacity: 0;
     }
 }
+
+
 
 /* 設定・転生ボタンのスタイル */
 #menu-btn-group {
@@ -469,3 +549,190 @@ body {
     66.7% { left: 46%;    opacity: 1; } 
     100%  { left: 115%;   opacity: 1; }
 }
+
+
+/* ⚙️ 設定画面内のレイアウト用クラス */
+.settings-row {
+    margin-bottom: 25px;
+    width: 100%;
+}
+
+/* 🎵 BGMスイッチ専用の基本デザイン */
+.audio-toggle-design {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, transform 0.1s ease; /* 🌟 押したときに滑らかに色が変わるアニメーション */
+}
+
+/* 🌟 ON状態のクラス（緑色） */
+.audio-toggle-design.bgm-on {
+    background-color: #4cd137 !important;
+    color: #ffffff !important;
+}
+
+/* 🌟 OFF状態のクラス（灰色） */
+.audio-toggle-design.bgm-off {
+    background-color: #718093 !important;
+    color: #dcdde1 !important;
+}
+
+/* 🖱️ マウスを乗せたときに少し明るくする（ホバーエフェクト） */
+.audio-toggle-design:hover {
+    filter: brightness(1.1);
+    cursor: pointer;
+}
+
+/* 👆 クリックした瞬間に少しだけボタンが沈む（押し心地アップ） */
+.audio-toggle-design:active {
+    transform: scale(0.98);
+}
+
+/* 🌟 お店の右下に立つ小さな口コミ看板（画像用調整版） */
+#review-signboard {
+    position: absolute;
+    bottom: 25px;            /* 🏪 お店の足元に綺麗に設置 */
+    right: -25px;           /* 🏪 280pxの基地の右側にちょこんとはみ出す位置 */
+    width: 55px;            /* 看板の横幅 */
+    height: auto;           /* 縦横比を維持 */
+    filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.4)); /* 画像の形に沿った綺麗な影をつける */
+    cursor: pointer;
+    z-index: 15;
+    user-select: none;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+/* 🖱️ 看板にマウスを乗せたらひょこっと浮き上がる楽しい演出 */
+#review-signboard:hover {
+    transform: scale(1.15) rotate(5deg); 
+    filter: drop-shadow(0px 6px 10px rgba(0,0,0,0.5)) brightness(1.1); /* 少し明るく */
+}
+
+/* 👆 クリックした瞬間に少し沈む（押し心地アップ） */
+#review-signboard:active {
+    transform: scale(0.95);
+}
+
+/* 📋 レビュー画面専用の四角いポップアップ箱（スクロール・はみ出し完全対応版） */
+.review-modal-content {
+    max-width: 450px !important;
+    
+    /* 🌟【追加】スマホやPCの画面サイズに合わせて、高さを最大75%にがっちり固定！ */
+    max-height: 75vh !important; 
+    
+    /* 🌟【追加】中身が75%の高さを超えたら、自動的にここだけ縦スクロールさせる魔法の1行 */
+    overflow-y: auto !important;   
+    
+    /* 💡 スマホの「閉じるボタン」が画面下に埋まらないよう、箱の内側の下部に少し余白を作っておきます */
+    padding-bottom: 20px !important; 
+    
+    background: #2c3e50 !important;
+    color: #ffffff !important;
+    border: 3px solid #f1c40f;
+}
+
+/* ⭐ 総合スコアの目立つエリア */
+.review-summary {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.review-summary span {
+    display: block;
+}
+#modal-total-stars {
+    font-size: 28px;
+    color: #f1c40f;
+}
+#modal-buff-text {
+    font-size: 13px;
+    color: #4cd137;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* 💬 1件ごとの口コミカード */
+.single-review-card {
+    background: rgba(255,255,255,0.08);
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.5;
+    border-left: 4px solid #f1c40f;
+    font-style: italic;
+}
+
+/* 🌟 ニュース速報の外枠（画面最上部にがっちり固定） */
+#news-ticker-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background: #1e272e; /* 落ち着いたダークグレー */
+    border-bottom: 2px solid #f1c40f; /* レストラン風のゴールドライン */
+    overflow: hidden;
+    z-index: 9999; /* 🌟 一番手前に表示させる */
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+/* 🌟 ニュース速報の外枠（デカ文字に合わせて縦幅を30px ➔ 45pxに拡大！） */
+#news-ticker-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 45px;                   /* 🌟 ニュース帯を少し太くして存在感をアップ */
+    background: #1e272e; 
+    border-bottom: 3px solid #f1c40f; /* ゴールドのラインも少し太くしてクッキリ */
+    overflow: hidden;
+    z-index: 9999; 
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+/* 🌟 流れる文字のベース設定（サイズを大幅に大きく、さらに太字に！） */
+#news-ticker-text {
+    position: absolute;
+    white-space: nowrap;
+    padding-left: 100%; 
+    color: #ffffff;                 /* 🌟 文字色をよりパキッとした純白に変更 */
+    font-size: 18px;                /* 🌟 サイズを13px ➔ 18pxに大幅拡大！ */
+    font-weight: 900;               /* 🌟 文字の太さをマックスにして視認性を向上 */
+    font-family: 'Helvetica Neue', Arial, sans-serif; /* 🌟 読みやすいゴシック系のフォントに統一 */
+    display: inline-block;
+    animation: textScrollMarquee 30s linear infinite; /* 文字が大きくなった分、少しだけ流れる秒数（25s ➔ 30s）を伸ばして快適に */
+}
+
+/* 🖱️ マウスを乗せたらニュースを一時停止させる */
+#news-ticker-container:hover #news-ticker-text {
+    animation-play-state: paused;
+    color: #f1c40f; 
+    cursor: help;
+}
+
+/* 🎬 1ミリもカクつかない滑らかなスクロールルール */
+@keyframes textScrollMarquee {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    100% {
+        transform: translate3d(-100%, 0, 0);
+    }
+}
+
+/* 💡 UI崩れ防止：ニュース帯が45pxに巨大化したので、ゲーム全体を45px下にずらして綺麗にフィットさせます */
+body {
+    padding-top: 45px !important;
+}
+
