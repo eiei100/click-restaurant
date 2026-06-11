@@ -171,32 +171,44 @@ function updateDisplay() {
 
 
 // --- 4-2-1 お店の進化をチェックして画面を更新する関数 ---
+let lastAppliedRankName = ""; // 🌟 最後に画面に適用したランク名を記憶する変数（バグ・重さ対策）
+
 function checkRestaurantEvolution() {
+    // 画面要素を安全に取得（もし外で定義しているならこの2行は消してもOKですが、あると安全です）
+    const rankEl = document.getElementById('restaurant-rank');
+    const visualEl = document.getElementById('restaurant-visual');
+
     // ランクデータを上から順番に見て、条件をクリアしている「一番高いランク」を探す
     let currentRank = restaurantRanks[0];
 
     restaurantRanks.forEach((rank) => {
-        // 💡 修正ポイント1：基準を通算（totalMoney）から、転生でリセットされる「今世の売上（seasonMoney）」に変更！
         if (gameState.seasonMoney >= rank.threshold) {
             currentRank = rank;
         }
     });
 
-    // 画面の文字を決定したランクのものに書き換える
-    if (rankEl) rankEl.textContent = currentRank.name;
-    
-    // 🌟 修正ポイント2：絵文字ではなく、AIで生成した画像を読み込むように処理を変更！
-    if (visualEl) {
-        // 例：img/restaurant/rank1.png などのパスを作る
-        const nextSrc = `img/restaurant/${currentRank.img}`;
+    // 🌟【最重要】前回適用したランクと「名前」が違う時だけ、画面を書き換える
+    if (lastAppliedRankName !== currentRank.name) {
         
-        // 💡 無駄な処理を減らす対策：すでにその画像が表示されている場合は、書き換えない（動作が軽くなります）
-        if (!visualEl.src.endsWith(nextSrc)) {
-            visualEl.src = nextSrc;
-            console.log(`🏪 お店が進化しました！現在の外観: ${currentRank.name}`);
+        // 1. 画面の文字を書き換える
+        if (rankEl) {
+            rankEl.textContent = currentRank.name;
         }
+        
+        // 2. 画像のパスを作って書き換える
+        if (visualEl) {
+            const nextSrc = `img/restaurant/${currentRank.img}`;
+            visualEl.src = nextSrc;
+        }
+
+        // 3. 進化ログを出す（本当に進化した瞬間だけ1回だけ流れます！）
+        console.log(`🏪 お店が進化しました！現在の外観: ${currentRank.name}`);
+
+        // 今のランク名を保存して、次回からこの中身をスキップさせる
+        lastAppliedRankName = currentRank.name;
     }
 }
+
 
 
 // 4-2-2 背景
