@@ -257,7 +257,7 @@ mainClickBtn.addEventListener('click', () => {
     updateDisplay();
 });
 
-// --- 5-2. 客の来店ミニアニメーション演出（完全同期＆ダブり防止版） ---
+// --- 5-2. 客の来店ミニアニメーション演出（今世売上1%連動＆ダブり防止版） ---
 const GUEST_IMAGES = [
     "img/guest/guest1.png",
     "img/guest/guest2.png",
@@ -267,7 +267,6 @@ const GUEST_IMAGES = [
     "img/guest/guest6.png"
 ];
 
-// 直前に登場した画像のインデックスを記録する変数（ダブり防止用）
 let lastGuestIndex = -1;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -278,29 +277,64 @@ document.addEventListener("DOMContentLoaded", () => {
     changeNextGuest(guestEl);
     guestEl.classList.add('start-animation');
 
-    // 💡 タイマーは完全廃止！
-    // CSSのアニメーションが「1周終わって最初に戻った瞬間（animationiteration）」を検知する
+    // アニメーションが1周終わるごとに画像を切り替える（ズレ防止）
     guestEl.addEventListener('animationiteration', () => {
-        // 次の周回のために、画面外（スタート地点）にいるこの瞬間に画像を切り替える！
         changeNextGuest(guestEl);
     });
+
+    // 💰 お客さんの来店とお金を完全に連動させる仕掛け
+    // お会計のタイミング（CSSで💰が出る3.8秒後）を狙って、実際にお金を増やす
+    setTimeout(() => {
+        addGuestRevenue();
+
+        // 以降、アニメーションの周期（7.2秒）ごとに定期的にお金を増やす
+        setInterval(() => {
+            addGuestRevenue();
+        }, 7200);
+
+    }, 3800); 
 });
 
-// 次のお客さんを「絶対に前回と違う人」からランダムに決定する関数
+// お客さんがお会計したときに売上を増やす関数（💰と金額の完全連結版）
+function addGuestRevenue() {
+    const baseRevenue = 5; 
+    const guestProfit = baseRevenue + Math.floor(gameState.seasonMoney * 0.01); 
+
+    gameState.money += guestProfit;
+    gameState.seasonMoney += guestProfit;
+    gameState.totalMoney += guestProfit;
+
+    // 🌟 【修正】💰と金額を完全にドッキングしてエフェクトに流し込む
+    const coinEffectEl = document.getElementById('coin-effect');
+    if (coinEffectEl) {
+        // 例：「💰 + 1.50 K」というひとかたまりの文字を作る
+        coinEffectEl.textContent = `💰 +${formatNumber(guestProfit)}`;
+    }
+
+    // 画面の表示を最新データに書き換える
+    const moneyEl = document.getElementById('money');
+    const totalMoneyEl = document.getElementById('total-money');
+    
+    if (moneyEl) {
+        moneyEl.textContent = formatNumber(gameState.money); 
+    }
+    if (totalMoneyEl) {
+        totalMoneyEl.textContent = formatNumber(gameState.totalMoney);
+    }
+}
+
+
+// 次のお客さんをランダムに決定する関数（変更なし）
 function changeNextGuest(guestEl) {
     let randomIndex;
-    
-    // 画像が2種類以上あれば、前回と同じ画像が選ばれないようにループさせる
     do {
         randomIndex = Math.floor(Math.random() * GUEST_IMAGES.length);
     } while (randomIndex === lastGuestIndex && GUEST_IMAGES.length > 1);
-
-    // 今回選ばれた番号を保存
     lastGuestIndex = randomIndex;
-
     const nextGuest = GUEST_IMAGES[randomIndex];
     guestEl.style.setProperty('--guest-img', `url("${nextGuest}")`);
 }
+
 
 
 // --- 6. ショップのボタンを自動生成する関数 ---
@@ -648,21 +682,38 @@ if (resetGameBtn) {
         const confirmFirst = confirm("⚠️ 最終警告 ⚠️\nこれまでの現在の所持金、スタッフ、通算売上、および【天界の調味料（転生データ）】も含む、すべてのデータを完全に削除して最初からやり直しますか？");
 
         if (confirmFirst) {
-            //2回目の念押し確認
+            // 2回目の念押し確認
             const confirmSecond = confirm("本当に、本当に消去しますよ？\nこの操作は絶対に取り消すことができません。よろしいですか？");
 
             if (confirmSecond) {
-                // 【超重要】リロード時の自動セーブ見張りを、力尽くで削除（解除）する！
+                // 💡 修正ポイント1：ページが閉じる・切り替わる瞬間のセーブイベントを解除
                 window.removeEventListener('beforeunload', saveGame);
-                // 自動セーブ機能で使う保存用キー（clickRestaurantSave）をブラウザから完全に削除
-                localStorage.removeItem('clickRestaurantSave');
+                window.removeEventListener('unload', saveGame);
 
-                // ページを強制的に再読み込み（リロード）して、完全に初期状態（0円）からスタートさせる
+                // 💡 修正ポイント2：【60秒自動セーブタイマーの強制破壊】
+                // ブラウザで動いているすべての setInterval / setTimeout タイマーを完全に停止させます
+                const highestId = setInterval(";");
+                for (let i = 0; i <= highestId; i++) {
+                    clearInterval(i);
+                    clearTimeout(i);
+                }
+
+                // 💡 修正ポイント3：ローカルストレージ（ブラウザのデータ）を完全に削除
+                localStorage.removeItem('clickRestaurantSave');
+                localStorage.clear(); 
+
+                // 💡 修正ポイント4：最後の悪あがきでセーブされないよう、saveGame関数自体を「何もしない関数」へ上書きして無効化
+                saveGame = function() {
+                    console.log("セーブ機能はリセットのため完全に無効化されています。");
+                };
+
+                // すべてのデータ、タイマー、セーブ機能を完全に消滅させた状態で、ページを強制リロードする
                 location.reload();
             }
         }
     });
 }
+
 
 // --- 13. 💾 自動セーブ機能（LocalStorage） ---
 // 【保存】現在のゲームデータをブラウザのメモリに書き込む関数

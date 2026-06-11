@@ -375,25 +375,50 @@ body {
     z-index: 5;               
 }
 
-/* 💰 お金のエフェクト */
+/* 💰 お金とテキストが完全連結したエフェクト（中央に配置） */
 #coin-effect {
     position: absolute;
-    top: -70px;               /* 建物の上に配置 */
-    left: 50%;
+    top: -70px;               
+    left: 50%;                /* 🌟 中央（50%）に戻す */
     transform: translateX(-50%);
-    font-size: 48px;          
+    font-size: 36px;          /* 🌟 文字が並ぶので少しだけスマートなサイズに調整 */
+    font-weight: bold;
+    color: #4cd137;           /* リッチな売上用の黄緑色 */
+    /* 🌟 絵文字の💰にはフチがつかないので、後ろの数字だけきれいに白フチがつきます！ */
+    text-shadow: 2px 2px 0px #ffffff, -2px -2px 0px #ffffff, 2px -2px 0px #ffffff, -2px 2px 0px #ffffff;
+    white-space: nowrap;
     opacity: 0; 
+    z-index: 10;
+    pointer-events: none;
     animation: coinLoop 7.2s ease-out infinite;
 }
 
-/* 🎬 💰コインがピョコンと飛び出すアニメーション（高さに余裕ができたので少し高くジャンプ） */
+/* 🎬 コインと文字が一緒に弾け飛ぶアニメーション（変更なし、高さだけ微調整） */
 @keyframes coinLoop {
-    0%, 50% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 
-    53%     { opacity: 1; transform: translate(-50%, -60px) scale(1.2); } /* 🌟ジャンプ高さを-60pxに強化してダイナミックに */
-    56%     { opacity: 1; transform: translate(-50%, -60px) scale(1.0); } 
-    64%     { opacity: 0; transform: translate(-50%, -100px) scale(0.8); } /* 🌟上空-100pxへ気持ちよく昇天消滅 */
-    66.6%, 100% { opacity: 0; transform: translate(-50%, 0) scale(0.5); } 
+    0%, 50% { 
+        opacity: 0; 
+        transform: translate(-50%, 0) scale(0.5); 
+    } 
+    /* お会計の瞬間：💰と数字が一緒になって「ぬっ！」と2個並んで飛び出す */
+    53% { 
+        opacity: 1; 
+        transform: translate(-50%, -60px) scale(1.1); 
+    } 
+    56% { 
+        opacity: 1; 
+        transform: translate(-50%, -60px) scale(1.0); 
+    } 
+    /* 消滅：一寸のズレもなく、2つ仲良く上空へフワ〜ッと昇天しながら消えていく */
+    64% { 
+        opacity: 0; 
+        transform: translate(-50%, -100px) scale(0.8); 
+    } 
+    66.6%, 100% { 
+        opacity: 0; 
+        transform: translate(-50%, 0) scale(0.5); 
+    } 
 }
+
 
 /* 🚶 お客さんのベース設定 */
 .walking-guest {
