@@ -131,39 +131,35 @@ function isUpgradeUnlocked(up) {
     return gameState.seasonMoney >= up.cost * 0.4; // コストの40%の売上を達成したら出現
 }
 
-// 🌟【チカチカ完全消滅版】道具ショップ（商品棚）を生成・追加するメイン関数
+// 🌟【最終完成版】道具ショップ（商品棚）を生成・追加するメイン関数（PCホバー＆スマホ2回タップ完全対応）
 function renderUpgradesShop() {
     const upgradeArea = document.getElementById('shop-area-upgrades');
     if (!upgradeArea) return;
 
-    // 💡 修正ポイント：毎回 innerHTML = '' で全消去するのを完全に廃止します！
-    
     upgrades.forEach(up => {
         // 出現条件を満たしていないなら何もしない
         if (!isUpgradeUnlocked(up)) {
-            // もし何らかの理由（転生リセット等）で、すでに画面にあるのに未解禁に戻った場合は消去
             const existingBtn = document.getElementById(`up-btn-${up.id}`);
             if (existingBtn) existingBtn.remove();
             return;
         }
 
-        // 🌟【最重要：重複作成のガード】すでに画面にこの道具のボタンがあるなら、新しく作らずにスキップ！
-        // これによって、1秒ごとのループが走っても画像タグが破壊されず、チカチカが100%発生しなくなります
+        // 🌟【最重要：重複作成のガード】すでに画面にこの道具のボタンがあるならスキップ（チカチカ完全消滅）
         if (document.getElementById(`up-btn-${up.id}`)) {
             return;
         }
 
-        // 💡 ここから下は、新しくアンロックされた「最初の1回」だけ動く処理
         const btn = document.createElement('button');
         btn.className = 'upgrade-btn';
-        btn.id = `up-btn-${up.id}`; // 🌟 重複チェック用のIDを付与
+        btn.id = `up-btn-${up.id}`; 
         
-        // <img>タグを流し込む（ここは最初の1回だけなのでチカチカしません）
         const imgFileName = upgradeImages[up.id] || 'default.png';
         btn.innerHTML = `<img src="img/upgrades/${imgFileName}" class="upgrade-icon-img" alt="${up.name}" onerror="this.src='img/upgrades/default.png';">`;
 
-        // 🌟 ツールチップ（自作ポップアップ）との連動設定（施設ショップとお揃いの左側固定・完全ズーム耐性版）
-        btn.addEventListener('mouseenter', (e) => {
+        // =================================================================
+        // 💡 ツールチップに最新テキストを流し込んで左側の壁に固定する処理
+        // =================================================================
+        function showUpgradeTooltip() {
             const tooltip = document.getElementById('tooltip');
             if (!tooltip) return;
             
@@ -173,6 +169,7 @@ function renderUpgradesShop() {
             
             tooltip.classList.remove('hidden');
             
+            // 【完全ズーム耐性位置】ショップパネル（right-panel）の左隣にピタッと吸い付く計算
             const btnRect = btn.getBoundingClientRect();
             const containerRect = document.getElementById('game-container').getBoundingClientRect();
             const rightPanelRect = document.getElementById('right-panel').getBoundingClientRect();
@@ -180,15 +177,44 @@ function renderUpgradesShop() {
             
             tooltip.style.left = `${rightPanelRect.left - containerRect.left - tooltipRect.width - 10}px`;
             tooltip.style.top = `${btnRect.top - containerRect.top}px`;
+        }
+
+        // 💻 PC用：マウスが乗った瞬間に説明を出す
+        btn.addEventListener('mouseenter', () => {
+            if (!btn.classList.contains('active-touch')) {
+                showUpgradeTooltip();
+            }
         });
 
-        btn.addEventListener('mouseleave', () => {
+        // 💻 PC用：マウスが離れたらツールチップを隠す
+        btn.addEventListener('mouseleave', (e) => {
             const tooltip = document.getElementById('tooltip');
             if (tooltip) tooltip.classList.add('hidden');
+            
+            // 🌟【タッチ暴発ガード】スマホの指タッチによる誤作動の離脱なら目印を消さずにスルー！
+            if (e.pointerType === 'touch' || matchMedia('(pointer: coarse)').matches) {
+                return; 
+            }
+            
+            btn.classList.remove('active-touch'); 
         });
 
-        // 購入時のクリックイベント
-        btn.addEventListener('click', () => {
+        // 📱 スマホ＆PC共通：クリック（タップ）したときの処理
+        btn.addEventListener('click', (e) => {
+            // 💡 1回目：まだ目印（active-touch）が付いていないなら説明を出すだけ
+            if (!btn.classList.contains('active-touch')) {
+                const allUpBtns = upgradeArea.querySelectorAll('.upgrade-btn');
+                allUpBtns.forEach(b => b.classList.remove('active-touch'));
+
+                // このボタンを選択状態にして終了
+                btn.classList.add('active-touch');
+                showUpgradeTooltip();
+                
+                e.stopPropagation(); 
+                return; 
+            }
+
+            // 🌟 2回目：すでに選択状態なら、確実にお金を減らして購入処理を実行！
             if (gameState.money >= up.cost) {
                 gameState.money -= up.cost;
                 up.bought = true; 
@@ -196,18 +222,32 @@ function renderUpgradesShop() {
                 const tooltip = document.getElementById('tooltip');
                 if (tooltip) tooltip.classList.add('hidden');
 
-                // 💡 購入されたボタンだけをその場でピンポイント削除（HTML全消去はしません）
                 btn.remove(); 
                 
                 if (typeof updateDisplay === 'function') updateDisplay(); 
             }
         });
 
+        // 📱 スマホ用空振り救済：道具ボタン以外の場所（背景など）を触ったら選択状態をリセット
+        // 💡【バグ修正】pointerdownから「pointerup（指が離れた瞬間）」に変更し、かつメインボタンや道具ボタンそのもの、
+        // またはボタンの中身（画像など）を触っている時は、このリセット処理を絶対に通過させない安全ガードを追加！
+        document.addEventListener('pointerup', (e) => {
+            if (e.target.closest('#main-click-btn') || e.target.closest('.click-pop-effect') || e.target.closest('.click-effect') || e.target.closest('#coin-effect')) {
+                return;
+            }
+            
+            // タッチされた場所が、この道具ボタン自体、またはボタンの内部（<img>など）ではない時だけ安全に閉じます
+            if (e.target !== btn && !btn.contains(e.target)) {
+                const tooltip = document.getElementById('tooltip');
+                if (tooltip) tooltip.classList.add('hidden');
+                btn.classList.remove('active-touch');
+            }
+        }, { passive: true });
+
         // 🌟 新しく出現したボタンを商品棚の末尾にピタッと追加
         upgradeArea.appendChild(btn);
     });
 }
-
 
 // 🌟 ショップの3つのタブ（施設・店舗設備・道具）の切り替えイベントの全初期化
 function initShopTabs() {
@@ -620,24 +660,22 @@ if (mainClickBtn) {
         gameState.seasonMoney += clickProfit; 
         gameState.totalMoney += clickProfit;  
 
-        // 🌟【位置ズレ完全防止】タップされたボタン内の正確な座標（X, Y）を計算
+        // 🌟【位置ズレ完全防止・完全修正ビルド】
+        // マウスや指がタップした「ボタン内の正確な絶対座標」をブレなく一発で割り出します
         const clickArea = document.getElementById('click-area');
         if (clickArea) {
-            let targetX = e.offsetX;
-            let targetY = e.offsetY;
-            
-            if (e.target !== mainClickBtn) {
-                const rect = e.target.getBoundingClientRect();
-                const btnRect = mainClickBtn.getBoundingClientRect();
-                targetX += (rect.left - btnRect.left);
-                targetY += (rect.top - btnRect.top);
-            }
+            // 💡 クライアント座標（画面上の絶対位置）から、親ボックス（#click-area）の位置を引き算することで、
+            // どれだけ画面がズーム縮小・拡大されていても、指の真下の座標を100%正確にミリ単位で特定します！
+            const areaRect = clickArea.getBoundingClientRect();
+            const targetX = e.clientX - areaRect.left;
+            const targetY = e.clientY - areaRect.top;
 
             // 💸 ① 金額の文字を生成して配置
             const popEl = document.createElement('div');
             popEl.className = 'click-pop-effect';
-            popEl.textContent = `+${formatNumber(clickProfit)}`; // 道具強化分が数字に100%同期
+            popEl.textContent = `+${formatNumber(clickProfit)}`;
             
+            // 🌟 割り出したX, Y座標をピタッと代入
             popEl.style.left = `${targetX}px`;
             popEl.style.top = `${targetY}px`;
             clickArea.appendChild(popEl);
@@ -650,15 +688,19 @@ if (mainClickBtn) {
             imgPopEl.src = randomImgSrc; 
             imgPopEl.alt = '料理';
             
+            // 🌟 画像も完全に同じ指の真芯（X, Y）にセット！
+            // CSS側の「margin-left: -16px; margin-top: -16px;」と連動して、画像のド真ん中が指の芯に重なります。
             imgPopEl.style.left = `${targetX}px`;
-            imgPopEl.style.top = `${targetY - 15}px`; 
+            imgPopEl.style.top = `${targetY}px`; 
             clickArea.appendChild(imgPopEl);
 
+            // ⏱️ メモリ対策：0.8秒後に自動消去
             setTimeout(() => {
                 popEl.remove();
                 imgPopEl.remove();
             }, 800);
         }
+
 
         // 手動クリックの数字だけはその場ですぐ最新にする
         const mEl = document.getElementById('money');
@@ -1255,7 +1297,7 @@ setInterval(() => {
 
 
 
-// --- 8. 🌟【チカチカ対策専用】画面にある道具ボタンの明るさ（disabled）だけを高速で書き換える関数 ---
+// --- 8. 🌟【チカチカ＆1発購入バグ完全修正版】画面にある道具ボタンの明るさ（disabled）だけを高速で書き換える関数 ---
 function updateUpgradeButtonsReadyState() {
     const upgradeArea = document.getElementById('shop-area-upgrades');
     if (!upgradeArea) return;
@@ -1269,11 +1311,22 @@ function updateUpgradeButtonsReadyState() {
     buttons.forEach((btn, index) => {
         const up = visibleUpgrades[index];
         if (up) {
+            // =================================================================
+            // 🌟【超重要バグ修正ガード】
+            // スマホで今まさにタップされて説明表示中（active-touch）のボタンなら、
+            // 0.1秒ループによる disabled の上書きを完全にストップ（スキップ）させます！
+            // これにより、スマホの2ステップ目のタップが初期化されず、2回目で確実に購入が発火します。
+            // =================================================================
+            if (btn.classList.contains('active-touch')) {
+                return; 
+            }
+
             // 💡 画像データには一切触れず、買えるか買えないかの状態（disabled）だけを高速上書き！
             btn.disabled = gameState.money < up.cost;
         }
     });
 }
+
 
 
 

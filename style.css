@@ -120,35 +120,46 @@ body {
 }
 
 /* =================================================================
-   🌟 道具専用のショップリストボックス（本家風・横並びの商品棚）
+   🌟 本家クッキークリッカー風・一番上に常時表示される道具棚
 ================================================================= */
-/* 🌟 本家クッキークリッカー風・一番上に常時表示される道具棚 */
 #shop-area-upgrades {
     display: flex !important;
     flex-direction: row !important; 
     flex-wrap: wrap !important;     
     gap: 0.6vw !important;          
+    
+    /* 🌟【超重要】上詰めで並べ、縦にボタンを引き伸ばすブラウザの自動計算を完全に切る */
+    align-items: flex-start !important; 
     align-content: flex-start !important; 
     
-    /* 💡 ここを調整：普段はコンパクトに収まり、数が増えたら縦にスクロールさせる */
     width: 100% !important;
-    max-height: 12vh !important;    /* 🌟 ボタンが2〜3段並ぶくらいのちょうどいい高さに制限 */
-    overflow-y: auto !important;   /* 万が一ドバドバ増えたら棚の中でスクロール */
-    margin-bottom: 1vw !important;  /* 下の施設リストとの間に綺麗なすき間を作る */
-    padding: 0.3vw !important;
+    max-height: 15vh !important;    
+    overflow-y: auto !important;   
+    padding: 0.4vw !important;
+    padding-bottom: 0.8vw !important; 
+    margin-bottom: 1vw !important;  
     box-sizing: border-box !important;
 }
 
 /* =================================================================
-   🧱 道具ボタン自体のサイズ（透過画像が絶対にシースルーにならない完全防衛版）
+   🧱 道具ボタン自体のサイズ（ズーム縮小でも絶対につぶれない正方形ロック）
 ================================================================= */
 .upgrade-btn {
+    /* 💡 横幅は画面（右列パネル）に合わせて滑らかに縮みます */
     width: calc(25% - 0.5vw) !important; 
+    
+    /* 🌟【超重要修正】縦幅（height）を「auto」に逃がし、aspect-ratioを復活させます！
+       親の align-items: flex-start; と組み合わせることで、
+       ブラウザは「横幅が縮んだ分だけ、縦幅も自動で同じだけ縮める」という完璧な1:1の正方形を死守します */
+    height: auto !important;
     aspect-ratio: 1 / 1 !important;        
     
-    /* 💡 ボタン自体の背景を100%不透明な濃いネイビーグレーにする */
-    background-color: #2c3e50 !important;  
+    /* ズーム時の突っ張り・型崩れを完全に封じるガード */
+    flex-shrink: 0 !important;              
+    min-width: 0 !important;
+    min-height: 0 !important;               
     
+    background-color: #2c3e50 !important;  
     border: 0.15vw solid #bdc3c7 !important;
     border-radius: 6px !important;
     display: flex !important;
@@ -159,7 +170,9 @@ body {
     box-sizing: border-box !important;
     transition: all 0.15s ease !important;
     padding: 0.3vw !important;              
+    margin-bottom: 0.5vw !important; 
 }
+
 
 .upgrade-btn:hover {
     background-color: #34495e !important;  
@@ -173,22 +186,15 @@ body {
 
 /* 🌟【修正】お金が足りなくてボタンがdisabled（非活性）のときの背景色 */
 .upgrade-btn:disabled {
-    /* 💡 真っ黒から、木目背景に馴染む「上品な渋いチョコレートグレー」に変更！ */
     background-color: #3d2f25 !important;  
-    
-    /* 枠線も少し温かみのあるグレーにして暗闇に溶け込ませない */
     border-color: #7f6b5b !important;
     cursor: not-allowed !important;
 }
 
 /* 🌟【修正】お金が足りないときの中身のドット絵画像の見せ方 */
 .upgrade-btn:disabled .upgrade-icon-img {
-    /* 💡 暗くしすぎる（brightness(0.4)）のをやめて「0.65」へ引き上げ！
-       さらに白黒（grayscale）を「0.4」へマイルドに抑えることで、
-       後ろを一切透けさせずに、黒い輪郭線の道具でもシルエットがクッキリ見えるようになります */
     filter: brightness(0.65) grayscale(0.4) !important; 
 }
-
 
 .upgrade-btn.bought-hidden {
     display: none !important;
@@ -203,10 +209,7 @@ body {
     object-fit: contain !important;        
     image-rendering: pixelated !important;    
     pointer-events: none !important;       
-    
-    /* 🌟 ここに100%の不透明度をがっちり固定して透けを完全ガード */
     opacity: 1.0 !important; 
-    
     transition: transform 0.15s ease, filter 0.15s ease !important; 
 }
 
@@ -252,18 +255,20 @@ body {
     margin-top: 0;
     margin-bottom: 0.8vw;
     color: #333333;
+    font-size: 2.8vw;     /* 巨大なサイズはそのままキープ！ */
     
-    /* 🌟【巨大化！】 2.2vw ➔ 2.8vw に大増量！一番大事な「メインの所持金（売上）」が超ドデカ表示に！ */
-    font-size: 2.8vw;     
+    /* 🌟【超重要】これで絶対に改行させず、1行にがっちりロックします */
+    white-space: nowrap !important; 
 }
 
 .status-board p {
     margin: 0.6vw 0;
     color: #555555;
     font-weight: bold;
+    font-size: 1.7vw;     /* 巨大なサイズはそのままキープ！ */
     
-    /* 🌟【巨大化！】 1.3vw ➔ 1.7vw にサイズアップ！「毎秒の売上」や「通算売上」の視認性がマックスに！ */
-    font-size: 1.7vw;     
+    /* 🌟【超重要】これで絶対に改行させず、1行にがっちりロックします */
+    white-space: nowrap !important; 
 }
 
 /* =================================================================
@@ -399,25 +404,25 @@ body {
 
 /* 🍳 料理を作るメインボタン自体の設定 */
 #main-click-btn {
-    /* 💡 display: inline-block を追加して、text-align: center が効くようにします */
     display: inline-block;  
-    
-    width: 80%;             /* 🌟【最重要】固定値から左パネルの「横幅80%」に変更！これで絶対にはみ出さない */
-    aspect-ratio: 1 / 1;    /* 🌟【最重要】縦横比を1:1に固定！これでズーム時も綺麗な正円（丸）を死守 */
-    height: auto;           /* 縦幅はアスペクト比に自動計算させます */
-    max-width: 300px;       /* 横幅が大きくなりすぎないよう限界サイズはキープ */
-    
-    border-radius: 50%;     /* 完全な丸（正円） */
-    padding: 1.5vw;         /* 💡 押しやすい内側の厚みを画面幅連動に変更 */
-    font-size: 2.2vw;       /* 🌟 画面幅連動の文字サイズに変更 */
+    width: 80%;             
+    aspect-ratio: 1 / 1;    
+    height: auto;           
+    max-width: 300px;       
+    border-radius: 50%;     
+    padding: 1.5vw;         
+    font-size: 2.2vw;       
     font-weight: bold;
-    background-color: #ff9f43; /* 美味しそうなオレンジ色 */
+    background-color: #ff9f43; 
     color: white;
     border: none;
     cursor: pointer;
-    box-shadow: 0 0.6vw #ee5253; /* 💡 立体感の厚み(下側の影)も画面連動に変更し比率を維持 */
-    transition: 0.05s;      /* クリックした時の沈み込みをさらに高速に */
-    box-sizing: border-box; /* 絶対に横にはみ出さないようにガードする魔法の1行 */
+    box-shadow: 0 0.6vw #ee5253; 
+    transition: 0.05s;      
+    box-sizing: border-box; 
+
+    /* 🌟【超重要】これでボタンの中の文字も絶対に改行させず、1行にがっちりロックします！ */
+    white-space: nowrap !important; 
 }
 
 /* ボタンを押したときのカチッとする動き */
@@ -1057,239 +1062,431 @@ body {
 
 
 
-
+/* ----- ここからスマホ -----
 /* =================================================================
-   📱【最新・超巨大化＆位置修正版】極限まで見やすさを極めたスマホ設定
+   📱【最新・3列横並び死守＆見切れ完全防衛版】スマホ専用設定
 ================================================================= */
 @media (pointer: coarse) and (hover: none) {
     
     /* 外側の無駄な余白をカットして全画面化 */
     body {
         padding: 0 !important;
-        padding-top: 45px !important;
+        padding-top: 60px !important; /* ニュース帯の高さ分 */
     }
+    
+    /* 🌟【最重要】3列の横並び（row）を100%維持し、絶対に右端をぶち破らせないガード */
     #game-container {
-        flex-direction: row !important; 
+        display: flex !important;
+        flex-direction: row !important; /* 💡 3列の横並びを絶対に維持！ */
+        flex-wrap: nowrap !important;   /* 💡 どれだけ窮屈でも縦に落とさない魔法 */
         width: 100vw !important;
-        height: calc(100vh - 45px) !important;
-        padding: 8px !important;
-        gap: 8px !important;
+        height: calc(100vh - 60px) !important;
+        padding: 4px !important;        /* スマホ画面に合わせて余白を最小限に */
+        gap: 2px !important;            /* パネル同士の隙間をギリギリまで密着させて横幅を稼ぐ */
         border-radius: 0 !important;
+        overflow: hidden !important;    /* 画面全体のガタつき・はみ出しを完全ロック */
     }
 
-    /* 🍳 左パネル：売上もボタンも限界まで巨大化 */
+        /* =================================================================
+       🍳 【修正】左パネル：売上を一番上、ボタンを中央に配置する設定
+       ================================================================= */
     #left-panel {
         height: 100% !important;
+        width: 31vw !important;     
+        max-width: 31vw !important;
+        min-width: 0 !important;    
         display: flex !important;
         flex-direction: column !important;
+        
+        /* 🌟【修正その1】泣き別れを廃止し、上詰め（flex-start）に戻します */
+        /* これにより売上ボードは一番上の特等席をキープします */
         justify-content: flex-start !important; 
+        
         align-items: center !important;
-        padding: 0 !important;
-        padding-right: 4px !important;
+        padding: 6px 2px !important; 
+        box-sizing: border-box !important;
+        border-right: 1px dashed #e0cda9 !important; 
     }
     
-    /* 🌟 左列のテキスト（さらに大きく圧倒的な視認性に！） */
+    /* 🌟 左列のテキスト（スマホの狭い31%幅の中に文字を100%収める！） */
     #left-panel h1, #left-panel p {
-        margin: 4px 0 !important; 
+        margin: 2px 0 !important; 
         text-align: center !important;
-        width: 100%;
+        width: 100% !important;
+        white-space: nowrap !important; /* 絶対に改行させない */
     }
-    #game-container h1 { font-size: 40px !important; } 
-    #game-container p  { font-size: 35px !important; } 
+    /* 💡 固定の40px/35pxはあまりにも太すぎてはみ出るため、スマホの画面幅(vw)に連動させて自動縮小させます */
+    #game-container h1 { font-size: 3vw !important; } /* 「〇〇円」の売上文字 */
+    #game-container p  { font-size: 2vw !important; } /* 「毎秒〇円」の文字 */
     
     #money, #season-money, #mps, #total-money {
-        min-width: 120px !important; 
-        font-size: 35px !important;   
+        min-width: 0 !important;        /* 💡 120pxの突っ張りを完全解除！ */
+        font-size: 3vw !important;      /* 数字もパネルの幅に合わせて自動でミニサイズにフィット */
+        display: inline !important;
     }
 
-    /* 🍳 料理を作るメインボタン（超ドデカサイズ！） */
+        /* 🍳【修正】料理ボタンを包む親エリア（高めの押しやすい位置へ引き上げ版） */
     #click-area {
-        flex: 1 !important; 
         width: 100% !important;
+        height: auto !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        margin: 0 !important;
-    }
-    #main-click-btn {
-        width: 100% !important;
-        height: 500px !important; 
-        max-width: 100% !important;
-        max-height: none !important;
-        border-radius: 24px !important; 
-        font-size: 60px !important; 
-        box-shadow: 0 8px #ee5253 !important;
-        margin: 0 !important;
+        flex: none !important;          
+        
+        /* 🌟【ここを修正！】上の売上ボードとの距離を縮め、下側の余白を2倍に増量！ */
+        /* これにより、ボタンが一番下に沈み込まず、売上ボードに近い「少し高めの特等席」へグッと引き上がります */
+        margin-top: 2vh !important;       /* 上のボードとのすき間を画面の高さ2%分に狭める */
+        margin-bottom: auto !important;   /* 下側の余白を最大にして上に押し上げる */
     }
 
-    /* 🏪 中央パネル：設定ボタンやランクの文字も拡大 */
+    #main-click-btn {
+        width: 95% !important;          /* 🌟 左パネルの横幅（31vw）の95%のサイズに自動で合わせる */
+        aspect-ratio: 1 / 1 !important; /* 🌟 縦横比を1:1にして、スマホでも「綺麗な正円」を絶対死守！ */
+        height: auto !important;        /* ❌ 固定の 500px は完全撤廃！これで横幅に合わせてシュッと縮みます */
+        max-width: 100% !important;
+        max-height: 35vh !important;    
+        
+        border-radius: 50% !important;  /* 🌟 完全な丸ボタンにしてスマホでも押しやすく */
+        font-size: 2.5vw !important;    /* 中の文字もボタンの縮み具合に合わせて自動フィット */
+        box-shadow: 0 0.5vw #ee5253 !important;
+        margin: 0 !important;
+        white-space: nowrap !important; 
+    }
+
+    /* 🏪【最重要修正】中央パネル：画面の「横幅38%」にがっちり固定 */
     #center-panel {
+        flex: 1.2 !important;
+        width: 38vw !important;
+        max-width: 38vw !important;
+        min-width: 0 !important;
         height: 100% !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: flex-start !important; 
-        padding: 0 !important;
-        padding-right: 4px !important;
+        padding: 4px !important;
+        box-sizing: border-box !important;
+        border-right: 1px dashed #e0cda9 !important;
     }
 
-    /* 設定・転生ボタン（文字を大きく、タップしやすく） */
+     /* =================================================================
+       ⚙️【スマホ専用・1.5倍巨大化】中央の設定・転生ボタン
+       ================================================================= */
     #menu-btn-group {
-        width: 100%;
-        margin-bottom: 5px !important;
+        width: 100% !important;
+        margin-bottom: 4px !important;
         gap: 4px !important;
     }
     .menu-btn {
-        flex: 1;
-        padding: 8px 2px !important; 
-        font-size: 30px !important; 
-    }
-    #restaurant-rank {
-        font-size: 30px !important; 
-        margin: 2px 0 5px 0 !important;
+        flex: 1 !important;
+        
+        /* 🌟【1.5倍！】 縦の厚みを 6px ➔ 14px に、文字を 2.2vw ➔ 3.2vw にドデカ化！ */
+        padding: 14px 2px !important; 
+        font-size: 3.2vw !important;    
+        
+        border-radius: 8px !important;
+        font-weight: bold !important;
+        -webkit-tap-highlight-color: transparent !important;
     }
 
-    /* イラストステージ */
+    #restaurant-rank {
+        font-size: 2.5vw !important;    /* 💡 文字をパネル幅にフィット */
+        margin: 2px 0 !important;
+    }
+
+    /* イラストステージと建物（中央パネルの幅に合わせて綺麗に自動縮小） */
     #restaurant-stage {
         display: block !important;
-        flex: 1 !important; 
         width: 100% !important;
-        height: auto !important;
+        height: 45vh !important;       /* 縦幅を画面の高さ45%に制限してスマホ画面に収める */
         margin: 0 !important;
     }
-
-    /* レストランの建物と看板 */
     #restaurant-building-box {
-        width: 250px !important;
-        height: 250px !important;
+        width: 85% !important;          /* 🌟 固定250pxを廃止し、ステージ幅の85%に自動で縮める */
+        aspect-ratio: 1 / 1 !important; /* 綺麗な正方形を維持 */
+        height: auto !important;
         left: 50% !important;
-        top: 78% !important; 
+        top: 70% !important; 
         transform: translate(-50%, -50%) !important;
     }
     #review-signboard {
-        width: 80px !important;    
+        width: 20% !important;          /* 🌟 看板のサイズも建物に合わせてパーセンテージ縮小 */
         bottom: 5px !important;   
-        right: -10px !important;   
+        right: -5px !important;   
     }
-
-    /* 🚶 お客さんの歩行位置（お店のサイズアップに合わせてドアを通る高さに引き上げ！） */
     .walking-guest {
-        bottom: 200px !important;  /* 🌟 250pxサイズに巨大化したお店の入り口にぴったり重なる高さに修正 */
-        width: 45px !important;
+        bottom: 25% !important;         /* 🌟 高さをステージに対する％指定に変えてドアにぴったり合わせる */
+        width: 12% !important;
     }
 
-    /* 🛒 ショップエリア（右パネル：さらに文字デカ＆ボタン巨大化！） */
+    /* 🛒【最重要修正】ショップエリア（右パネル）：画面の「横幅31%」にがっちり固定 */
     #right-panel {
+        flex: 1 !important;
+        width: 31vw !important;
+        max-width: 31vw !important;
+        min-width: 0 !important;
         height: 100% !important;
+        padding: 4px !important;
+        box-sizing: border-box !important;
     }
     
     /* ショップのタブボタン */
     #shop-tabs {
-        gap: 4px !important;
-        margin-bottom: 8px !important;
+        gap: 2px !important;
+        margin-bottom: 4px !important;
     }
     #shop-tabs .tab-btn {
-        font-size: 30px !important; 
-        padding: 10px 2px !important; 
-    }
-
-    /* 施設ボタン本体と文字（限界まで大きく！） */
-    .shop-btn { 
-        font-size: 25px !important;       
-        padding: 14px 12px !important;    
-        margin-bottom: 8px !important;    
-    } 
-
-    /* 🌟【横並び維持・見切れ対策】購入数セレクターのスマホ最適化設定 */
-    #buy-amount-selector {
-        display: flex !important;
-        flex-direction: row !important; /* 💡 便利な横並びを絶対に維持！ */
-        align-items: center !important;
-        gap: 4px !important;            /* ボタン同士のすき間を詰めて横幅を稼ぐ */
-        margin-bottom: 12px !important;
-        font-size: 16px !important;    /* 「購入数:」の文字をほどよいサイズに */
-        font-weight: bold !important;
-        color: #2c3e50 !important;
-        width: 100% !important;
-        box-sizing: border-box;
-    }
-
-    /* ラベル（ボタンの枠）自体のサイズ微調整 */
-    #buy-amount-selector label {
-        flex: 1 !important; /* 💡 3つのボタンが横幅を均等に分け合って並ぶ */
-        min-width: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 4px !important;
-        
-        background-color: #f5f6fa !important;
-        border: 2px solid #c8d6e5 !important;
-        border-radius: 6px !important;
-        padding: 10px 2px !important; /* 縦幅の押しやすさは維持して、横をスリムに */
-        font-size: 18px !important;   /* 🌟 24pxから「18px」に微調整！これで見切れを完全防衛 */
-        font-weight: bold !important;
-        cursor: pointer !important;
-        box-sizing: border-box;
-        white-space: nowrap !important; /* 絶対に文字を改行させない */
-    }
-
-    /* ラジオボタンの丸ポチサイズ */
-    #buy-amount-selector input[type="radio"] {
-        width: 18px !important;  /* 🌟 丸ポチのサイズも全体のバランスに合わせて18pxに微調整 */
-        height: 18px !important;
-        margin: 0 !important;
-        cursor: pointer !important;
+        font-size: 2.2vw !important;    /* 💡 パネル幅に連動 */
+        padding: 6px 2px !important; 
     }
 
     /* =================================================================
-       🌟【スマホ専用】ニュース速報の文字・帯の超巨大化設定
+       🛒【スマホ専用・1.5倍巨大化】右列のショップ施設ボタン
+       ================================================================= */
+    .shop-btn { 
+        /* 🌟【1.5倍！】 文字を 1.8vw ➔ 2.6vw に、内側の肉厚を 14px ➔ 20px に大増量！ */
+        font-size: 2.6vw !important;       
+        padding: 20px 14px !important;    
+        
+        margin-bottom: 6px !important;    
+        border-radius: 12px !important;
+        font-weight: bold !important;
+        -webkit-tap-highlight-color: transparent !important;
+    } 
+
+    /* 購入数セレクターのスマホ最適化 */
+    #buy-amount-selector {
+        display: flex !important;
+        flex-direction: row !important; 
+        align-items: center !important;
+        gap: 2px !important;            
+        margin-bottom: 6px !important;
+        font-size: 1.8vw !important;    
+        width: 100% !important;
+    }
+    #buy-amount-selector label {
+        flex: 1 !important; 
+        min-width: 0 !important;
+        padding: 6px 2px !important; 
+        font-size: 2vw !important;      /* 💡 文字をパネル幅に連動 */
+    }
+    #buy-amount-selector input[type="radio"] {
+        width: 1.8vw !important;  
+        height: 1.8vw !important;
+    }
+
+    /* =================================================================
+       🌟【スマホ専用】ニュース速報の文字・帯の設定
        ================================================================= */
     #news-ticker-container {
-        display: flex !important;    /* 💡 非表示を解除し、確実に表示させます */
-        height: 60px !important;     /* 💡 ニュース帯を 45px ➔ 60px に太くして存在感アップ！ */
-        border-bottom: 4px solid #f1c40f !important; /* ゴールドラインも太くクッキリ */
+        display: flex !important;    
+        height: 60px !important;     
+        border-bottom: 4px solid #f1c40f !important; 
     }
-
     #news-ticker-text {
-        font-size: 24px !important;  /* 💡 文字サイズを 18px ➔ 24px に大幅拡大！ */
-        font-weight: 900 !important; /* 💡 マックスの太字にして視認性を限界まで向上 */
+        font-size: 24px !important;  
+        font-weight: 900 !important; 
     }
 
-    /* 💡 ニュース帯が60pxに巨大化したので、ゲームが被らないように全体の押し下げ幅を自動連動 */
-    body {
-        padding-top: 60px !important; /* 💡 上の隙間を 45px ➔ 60px に広げて綺麗にフィット */
-    }
-
-    #game-container {
-        height: calc(100vh - 60px) !important; /* 💡 残りの縦スペースをゲーム画面としてフルに使う */
-    }
-
-        /* =================================================================
-       🌟【スマホ専用】口コミ画面などの右上のバツ印ボタン超拡大設定
+    /* =================================================================
+       🌟【スマホ専用】口コミ画面などの右上のバツ印ボタン設定
        ================================================================= */
     .modal-x-btn {
-        top: 2px !important;       /* スマホの画面端に合わせて少し上にずらす */
-        right: 2px !important;     /* スマホの画面端に合わせて少し右にずらす */
-        font-size: 38px !important; /* 💡 指でパッと見えるようにサイズを38pxに超巨大化！ */
-        
-        /* 🌟 透明なタップ領域を上下左右に限界まで広げ、バツの周りの空気ごと触っても反応するようにする */
+        top: 2px !important;       
+        right: 2px !important;     
+        font-size: 38px !important; 
         padding: 15px 25px !important; 
-        
-        /* スマホで連打した時にボタンの周りが一瞬四角く青く光る現象を綺麗に消す */
         -webkit-tap-highlight-color: transparent !important; 
-        
-        z-index: 9999 !important;  /* 他の巨大化した文字よりも絶対に手前に出す */
+        z-index: 9999 !important;  
     }
 
-
+    /* =================================================================
+       🌟【スマホ専用】常時表示の道具棚（商品棚）設定
+       ================================================================= */
     #shop-area-upgrades {
-        gap: 8px !important;            /* スマホ用のすき間固定 */
+        display: flex !important;
+        flex-direction: row !important; 
+        flex-wrap: wrap !important;     
+        gap: 4px !important;            
+        align-items: flex-start !important; 
+        align-content: flex-start !important; 
+        max-height: 12vh !important;    
+        padding-bottom: 6px !important; 
     }
     .upgrade-btn {
-        width: calc(25% - 6px) !important; /* 🌟 スマホは横に「4つ」並べてコンパクトに収納 */
-        border: 2px solid #bdc3c7 !important;
-        padding: 6px !important;
-        -webkit-tap-highlight-color: transparent !important; /* 連打時の青い四角枠を消去 */
+        width: calc(25% - 3px) !important; /* 🌟 1行に4つピッタリ並ぶ比率 */
+        height: auto !important;           
+        aspect-ratio: 1 / 1 !important;    
+        flex-shrink: 0 !important;          
+        min-width: 0 !important;
+        min-height: 0 !important;
+        border: 1px solid #bdc3c7 !important;
+        padding: 4px !important;
+        -webkit-tap-highlight-color: transparent !important; 
+    }
+
+            /* =================================================================
+       🌟【スマホ専用】ポップアップ（モーダル）の超巨大化＆タップ最適化
+       ================================================================= */
+    /* 設定や転生画面の白い箱 */
+    .modal-content {
+        width: 90% !important;        /* 💡 スマホの画面幅に合わせて限界まで（90%）横に広げる！ */
+        padding: 25px 20px !important; /* 内側の押しやすい余白を確保 */
+        border-radius: 20px !important;
+    }
+
+    /* 口コミ・レビュー画面の箱 */
+    .review-modal-content {
+        width: 92% !important;        /* 💡 口コミ画面はさらに見やすく92%幅に超拡大！ */
+        max-height: 80vh !important;  /* 縦幅もスマホの画面内にたっぷり収める */
+        padding: 35px 15px 20px 15px !important;
+        border: 4px solid #f1c40f !important; /* 枠線をクッキリ太く */
+    }
+
+    /* 各種ポップアップのタイトル（h3） */
+    .modal-content h3, .review-modal-content h3 {
+        font-size: 32px !important;   /* 💡 太い指や視線が一瞬で捉えられるドデカタイトル！ */
+        margin-bottom: 20px !important;
+    }
+
+    /* ポップアップ内の説明文やテキスト */
+    .modal-content p {
+        font-size: 22px !important;   /* 💡 22pxに拡大して、スマホの画面でもスクロールせずに一撃で読めるように */
+        line-height: 1.5 !important;
+    }
+
+    /* 過去のクチコミカード */
+    .single-review-card {
+        padding: 14px !important;
+        font-size: 20px !important;   /* 💡 流れる口コミ文も20pxにサイズアップ！ */
+        margin-bottom: 12px !important;
+        border-left: 6px solid #f1c40f !important;
+    }
+
+    /* 総合評価の星（⭐⭐⭐⭐⭐）とバフ */
+    #modal-total-stars { font-size: 40px !important; } /* 星をドカンと巨大化 */
+    #modal-buff-text { font-size: 22px !important; }
+
+    /* 転生のチップ獲得ボックス */
+    .prestige-box {
+        padding: 15px !important;
+        font-size: 24px !important;   /* 💡 「天界の調味料」の獲得数が超クッキリ見えます */
+    }
+    .prestige-box p {
+        font-size: 18px !important;   /* 補足テキストの拡大 */
+    }
+
+    /* 下側にある「閉じる」「転生する」「BGMスイッチ」などの特大ボタン */
+    .close-btn, .action-btn, .danger-btn, .audio-toggle-design {
+        width: 100% !important;       /* 💡 ボタンを横いっぱいに広げて、親指のどこで叩いても絶対に当たるようにする */
+        padding: 16px 20px !important; /* 🌟 縦幅をふっくら肉厚にして、最高のタップ感に！ */
+        font-size: 26px !important;   /* 💡 文字サイズを26pxに大増量！ */
+        margin-top: 20px !important;
+        border-radius: 12px !important;
+        -webkit-tap-highlight-color: transparent !important; /* タップ時の不細工な青枠をカット */
+    }
+
+    /* データ削除ボタンだけ少しマイルドなデカさに調整 */
+    .danger-btn {
+        font-size: 22px !important;
+        padding: 12px 20px !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* 🚶【修正】お客さんの歩行位置（お店のドアの敷居を通る高さに微調整！） */
+    .walking-guest {
+        /* 🌟【位置下げ修正】 25% ➔ 16% に引き下げて、ドアの真芯を通るように位置調整 */
+        bottom: 16% !important;         
+        
+        width: 12% !important;
+        position: absolute;
+        left: -100px; 
+        height: auto;            
+        opacity: 1;
+        z-index: 6;              
+    }
+
+            /* =================================================================
+       💰【位置完全復元・修復ビルド】自動売上のコインジャンプエフェクト
+       ================================================================= */
+    #coin-effect {
+        /* 🌟【巨大化！】 文字をスマホの大画面に合わせて「7vw」へ大きくします */
+        font-size: 7vw !important;          
+        font-family: 'Courier New', Courier, monospace !important;
+        font-weight: 900 !important;
+        text-shadow: 3px 3px 0px #ffffff, -3px -3px 0px #ffffff, 3px -3px 0px #ffffff, -3px 3px 0px #ffffff !important;
+        
+        position: absolute;
+        
+        /* 🌟【元の位置へ完全復元！】
+           出てきていた頃のコードと100%同じ「一番上の定位置（top: 10px）」に戻します！
+           これで、ステージ上部の空の特等席から確実にまた現れるようになります。 */
+        top: 10px !important;               
+        
+        left: 50% !important;                
+        transform: translateX(-50%) !important; 
+        transform-origin: center center !important;
+        text-align: center !important;       
+        color: #4cd137 !important;           
+        white-space: nowrap !important;
+        opacity: 0; 
+        z-index: 10 !important;
+        pointer-events: none !important;
+        
+        /* アニメーション名も、出てきていた頃の元の挙動（JSでクラスがついた瞬間に跳ねる動き）へ100%シンクロさせます */
+        animation-name: none !important; 
+    }
+
+    /* 💡 JSで「.show-coin」クラスがついた瞬間に動く、元の真っ直ぐお空へ昇天するジャンプ軌道を完全復元！ */
+    #coin-effect.show-coin {
+        animation: coinJumpPhoneFixed 1.2s ease-out forwards !important;
+    }
+
+    /* 🎬【元の軌道を完全復元・はみ出しガード版】
+       あなたが最初に用意してくれた、左右に1ミリもブレずど真ん中から真っ直ぐお空へ昇天するアニメーションの数値を、
+       スマホの狭いステージ（45vh）から突き抜けないスマートな移動距離（-40px / -90px）に美しく固定した決定版です！ */
+    @keyframes coinJumpPhoneFixed {
+        0% { 
+            opacity: 0; 
+            transform: translateX(-50%) translateY(0); 
+        } 
+        /* お会計の瞬間：元の挙動通り、パッと現れて少し上に綺麗に跳ねる */
+        15% { 
+            opacity: 1; 
+            transform: translateX(-50%) translateY(-35px); 
+        } 
+        /* 抜群の数字の読みやすさをキープするために少しの間その場でキープ */
+        70% { 
+            opacity: 1; 
+            transform: translateX(-50%) translateY(-35px); 
+        } 
+        /* 消滅：ステージの天井の裏に隠れないギリギリの高さまでスッと昇りながら消えていく */
+        100% { 
+            opacity: 0; 
+            transform: translateX(-50%) translateY(-75px); 
+        } 
+    }
+    /* =================================================================
+       🌟【スマホ専用・超巨大化】道具や施設の説明ツールチップ（#tooltip）
+       ================================================================= */
+    #tooltip {
+        /* 🌟【横幅拡張！】 20vw ➔ 34vw に広げて、巨大化した文字が2〜3行で綺麗に収まるスペースを確保 */
+        width: 34vw !important;          
+        
+        /* 内側のクッション（余白）もふっくら広げて見やすく調整 */
+        padding: 1.5vw !important;       
+        border-radius: 12px !important;
+        border: 0.25vw solid #bdc3c7 !important; /* 枠線も太くクッキリ */
+        
+        /* 🌟【文字サイズ巨大化！】 1.6vw ➔ 2.4vw に大幅パワーアップ！ */
+        /* これで巨大化したスマホ版の施設ボタンや、タップした時の指の太さに負けない圧倒的な読みやすさになります */
+        font-size: 2.4vw !important;       
+        
+        /* 💡 内部の太字タイトルや価格などのバランスもスマホ用に最適化 */
+        line-height: 1.5 !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.5) !important;
     }
 
 }
+
+
