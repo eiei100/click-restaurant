@@ -13,7 +13,7 @@ const gameState = {
 };
 
 
-// --- 2-1. 施設一覧（長期やり込み・大人のインフレ調整版） ---
+// --- 2-1. 施設一覧（3週間じっくり遊べる超長期やり込みブレーキ版） ---
 const facilities = [
     { id: 'flyer', name: '手書きのチラシ', cost: 15, mpsValue: 0.1, count: 0, totalEarned: 0, desc: '近所の電柱に貼ったビラ。たまに物好きな人が見にくる。' },
     { id: 'board', name: '店先の看板板', cost: 100, mpsValue: 1, count: 0, totalEarned: 0, desc: 'チョークでメニューを書いた板。少しだけお店っぽくなった。' },
@@ -25,17 +25,19 @@ const facilities = [
     { id: 'car', name: '高級デリバリーカー', cost: 330000000, mpsValue: 44000, count: 0, totalEarned: 0, desc: '金ピカの配達車。どんなに遠くても温かいまま料理を届ける。' },
     { id: 'drone', name: 'ドローン配達網', cost: 5100000000, mpsValue: 260000, count: 0, totalEarned: 0, desc: '空からピザが降ってくる時代。カラスの襲撃対策もバッチリ。' },
     { id: 'neon', name: '巨大ネオン看板', cost: 75000000000, mpsValue: 1600000, count: 0, totalEarned: 0, desc: '宇宙からも見える明るさ。夜間のお客さんが100倍に増えた。' },
-    { id: 'factory', name: '地下食品工場', cost: 1100000000000, mpsValue: 10000000, count: 0, totalEarned: 0, desc: '24時間ノンストップで食材を加工する、秘密の巨大地下迷宮。' },
-    { id: 'fridge', name: '超次元冷蔵庫', cost: 14000000000000, mpsValue: 65000000, count: 0, totalEarned: 0, desc: '中が四次元空間につながっており、無限に食材を新鮮保存できる。' },
-    { id: 'lab', name: 'ピザ研究所', cost: 170000000000000, mpsValue: 430000000, count: 0, totalEarned: 0, desc: '白衣を着た科学者たちが、一番美味しくなる分子構造を研究中。' },
-    { id: 'brain', name: '脳波注文システム', cost: 2100000000000000, mpsValue: 2900000000, count: 0, totalEarned: 0, desc: '食べたいと思った瞬間、すでに目の前に料理が届いている。' },
-    { id: 'alchemy', name: '錬金術調理鍋', cost: 26000000000000000, mpsValue: 21000000000, count: 0, totalEarned: 0, desc: 'ただの水と小麦粉から、最高級 of 黄金スープを錬成する。' },
-    { id: 'elevator', name: '美食の軌道エレベーター', cost: 310000000000000000, mpsValue: 150000000000, count: 0, totalEarned: 0, desc: '地上で作った料理を、そのまま宇宙ステーションへ直行デリバリー。' },
-    { id: 'moon', name: '月面トマト農場', cost: 3800000000000000000, mpsValue: 1100000000000, count: 0, totalEarned: 0, desc: '宇宙放射線を浴びて、信じられないほど甘くなった特大トマト。' },
-    { id: 'wormhole', name: 'ワームホール配送便', cost: 45000000000000000000, mpsValue: 8300000000000, count: 0, totalEarned: 0, desc: '空間を折りたたんで配達。配達時間は驚異のマイナス1秒（過去に届く）。' },
-    { id: 'parallel', name: '並行世界レストラン', cost: 540000000000000000000, mpsValue: 64000000000000, count: 0, totalEarned: 0, desc: '別の世界の自分たちにも店を経営させ、売上をこの世界に集約する。' },
-    { id: 'universe', name: '全知全能のレストラン', cost: 6400000000000000000000, mpsValue: 510000000000000, count: 0, totalEarned: 0, desc: 'この宇宙そのものが一つの巨大なレストランとなった。売上はもはや概念。' }
+    // 🛑【ここから地獄の超強烈ブレーキ！】1円の生産力を得るための「コスト比率」を劇的に悪くします。
+    { id: 'factory', name: '地下食品工場', cost: 1100000000000, mpsValue: 5000000, count: 0, totalEarned: 0, desc: '24時間ノンストップで食材を加工する、秘密の巨大地下迷宮。' },
+    { id: 'fridge', name: '超次元冷蔵庫', cost: 14000000000000, mpsValue: 22000000, count: 0, totalEarned: 0, desc: '中が四次元空間につながっており、無限に食材を新鮮保存できる。' },
+    { id: 'lab', name: 'ピザ研究所', cost: 170000000000000, mpsValue: 95000000, count: 0, totalEarned: 0, desc: '白衣を着た科学者たちが、一番美味しくなる分子構造を研究中。' },
+    { id: 'brain', name: '脳波注文システム', cost: 2100000000000000, mpsValue: 380000000, count: 0, totalEarned: 0, desc: '食べたいと思った瞬間、すでに目の前に料理が届いている。' },
+    { id: 'alchemy', name: '錬金術調理鍋', cost: 26000000000000000, mpsValue: 1500000000, count: 0, totalEarned: 0, desc: 'ただの水と小麦粉から、最高級 of 黄金スープを錬成する。' },
+    { id: 'elevator', name: '美食の軌道エレベーター', cost: 310000000000000000, mpsValue: 5800000000, count: 0, totalEarned: 0, desc: '地上で作った料理を、そのまま宇宙ステーションへ直行デリバリー。' },
+    { id: 'moon', name: '月面トマト農場', cost: 3800000000000000000, mpsValue: 22000000000, count: 0, totalEarned: 0, desc: '宇宙放射線を浴びて、信じられないほど甘くなった特大トマト。' },
+    { id: 'wormhole', name: 'ワームホール配送便', cost: 45000000000000000000, mpsValue: 81000000000, count: 0, totalEarned: 0, desc: '空間を折りたたんで配達。配達時間は驚異のマイナス1秒（過去に届く）。' },
+    { id: 'parallel', name: '並行世界レストラン', cost: 540000000000000000000, mpsValue: 300000000000, count: 0, totalEarned: 0, desc: '別の世界の自分たちにも店を経営させ、売上をこの世界に集約する。' },
+    { id: 'universe', name: '全知全能のレストラン', cost: 6400000000000000000000, mpsValue: 1100000000000, count: 0, totalEarned: 0, desc: 'この宇宙そのものが一つの巨大なレストランとなった。売上はもはや概念。' }
 ];
+
 
 
 
@@ -518,7 +520,7 @@ function setupCoinTiming() {
 // お客さんがお会計したときに売上を増やす関数（💰と金額の完全連結版）
 function addGuestRevenue() {
     const baseRevenue = 5; 
-    const guestProfit = baseRevenue + Math.floor(gameState.seasonMoney * 0.01); 
+    const guestProfit = baseRevenue + Math.floor(gameState.seasonMoney * 0.001); 
 
     gameState.money += guestProfit;
     gameState.seasonMoney += guestProfit;
@@ -863,10 +865,11 @@ if (reviewSignboard && reviewModal) {
 
         const listContainer = document.getElementById('modal-review-list');
         if (listContainer) {
-            listContainer.innerHTML = ""; 
+            listContainer.innerHTML = ""; // 一度リセットして空にする
 
-            // 星1から「現在の星の数」までの口コミを合体させてタイムラインを作る
-            for (let i = 1; i <= currentStarRank; i++) {
+            // 🌟【修正】1から増やすのではなく、今の星の数（currentStarRank）から1に向かってカウントダウンする！
+            // これにより、今の最新の星の口コミが自動的に一番てっぺん（最上部）に大集結します。
+            for (let i = currentStarRank; i >= 1; i--) {
                 if (REVIEW_DATABASE[i]) {
                     REVIEW_DATABASE[i].comments.forEach(comment => {
                         const card = document.createElement('div');
@@ -877,6 +880,7 @@ if (reviewSignboard && reviewModal) {
                 }
             }
         }
+
 
         reviewModal.classList.remove('hidden');
     });
@@ -897,29 +901,26 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// 6-5. 速報
 // =================================================================
-// 📡 本家風・ティッカーニュース速報（GitHub Pages対応・JSON読み込み版）
+// 📡 本家風・ティッカーニュース速報（1周ごとに確実に切り替わる完全版）
 // =================================================================
 
-let LOADED_NEWS_DATA = null; // 🌟 初期状態は空っぽにしておき、後からJSONを読み込む
+let LOADED_NEWS_DATA = null; // 初期状態は空っぽにしておき、後からJSONを読み込む
 
-// 🎯 起動時に外部のニュースJSONファイルを自動でダウンロードしてくる関数
+// 🎯 起動時に外部のニュースJSONファイルを自動でダウンロードしてくる関数（変更なし）
 async function loadNewsDatabase() {
     try {
-        // GitHub Pagesでもパスがズレないように相対パスでJSONを取得
         const response = await fetch('data/news.json');
         if (!response.ok) throw new Error("ニュースデータの取得に失敗しました");
         
         const json = await response.json();
-        LOADED_NEWS_DATA = json.base_jokes; // 配列データを格納
+        LOADED_NEWS_DATA = json.base_jokes; 
         console.log("📡 外部ニュースデータの読み込みが完了しました！");
         
         // 読み込みが終わったら、最初のニュースを1発即座に流す
         updateTickerNews();
     } catch (error) {
         console.error("❌ ニュースの読み込みエラー:", error);
-        // 万が一読み込めなかった場合の保険用の初期テキスト
         LOADED_NEWS_DATA = ["【速報】レストラン、本日も元気に営業中！🍳"];
         updateTickerNews();
     }
@@ -936,45 +937,43 @@ function updateTickerNews() {
     // JSONから引っ張ってきた大量のジョークニュースをプールに入れる
     let newsPool = [...LOADED_NEWS_DATA];
 
-    // 🌟【ゲーム連動の仕掛け】今のゲームの数値を見て、ニュースを確率で追加する！
-    // 1. 所持金が大富豪（1M以上）のとき
+    // 🌟【ゲーム連動の仕掛け】数値を見てニュースを確率で追加
     if (gameState && gameState.money >= 1000000) {
         newsPool.push(`【経済】謎のレストラン経営者、現在の資産が 【 ${formatNumber(gameState.money)} 円 】 を突破。国家予算を超えるのも時間の問題か。`);
     }
-
-    // 2. お店の快適度（設備）が上がってきているとき
     if (gameState && gameState.comfort >= 5) {
         newsPool.push(`【口コミ】グルメアプリでのレストランの噂が拡散中。「観葉植物があるだけでパイプ椅子の冷たさが和らぐ」との声。`);
     }
     if (gameState && gameState.comfort >= 90) {
         newsPool.push(`【観光】店内に設置された「癒しの噴水」がパワースポットとして地方紙に掲載される。硬貨を投げ入れる人が続出。`);
     }
-
-    // 3. 転生チップ（調味料）をすでに持っているとき
     if (gameState && gameState.prestigeChips > 0) {
-        newsPool.push(`【神話】この世界に「天界の調味料」を隠し持つシェフが存在するとの目撃情報。1個につき生産力が1%上がるという超自然現象。`);
+        newsPool.push(`【神話】この世界に「天界の調味料」を隠し持つシェフが存在するとの目撃情報。1個につき生産力力が1%上がるという超自然現象。`);
     }
 
     // プールした大量のニュースの中から、ランダムで1つをピンポイントで選ぶ
     const randomIndex = Math.floor(Math.random() * newsPool.length);
     const selectedNews = newsPool[randomIndex];
 
-    // アニメーションを最初（右端）からきれいにリスタートさせる処理
-    tickerTextEl.textContent = selectedNews;
-    tickerTextEl.style.animation = 'none';
-    void tickerTextEl.offsetWidth; // 魔法の一行（リセットをブラウザに強制認識させる）
-    tickerTextEl.style.animation = 'textScrollMarquee 25s linear infinite';
-}
-
-// ⏱️ アニメーションが1周して左側に消え去るごとに、次のランダムニュースへ切り替える
-document.addEventListener("DOMContentLoaded", () => {
-    const tickerTextEl = document.getElementById('news-ticker-text');
-    if (tickerTextEl) {
-        tickerTextEl.addEventListener('animationiteration', () => {
-            updateTickerNews();
-        });
+    // 🌟【セキュリティ対策】リンクの有無で安全に切り替え
+    if (selectedNews.includes('<a') && selectedNews.includes('</a>')) {
+        tickerTextEl.innerHTML = selectedNews;
+    } else {
+        tickerTextEl.textContent = selectedNews;
     }
-});
+    
+    // 🌟【バグの全消去】一度古いセンサー（イベントリスナー）を完全にリセット
+    tickerTextEl.removeEventListener('animationiteration', updateTickerNews);
+
+    // アニメーションを最初（右端）からきれいにリスタートさせる処理
+    tickerTextEl.style.animation = 'none';
+    void tickerTextEl.offsetWidth; // 魔法の一行
+    tickerTextEl.style.animation = 'textScrollMarquee 25s linear infinite';
+
+    // 🌟【最重要！】アニメーションが上書きされた「今」、改めて次の切り替えセンサーをがっちり貼り直す！
+    // これにより、文字が左外側に消え去る（1周する）たびに、全自動でこの関数が再発火して中身がガラッと変わります
+    tickerTextEl.addEventListener('animationiteration', updateTickerNews);
+}
 
 
 // --- 7. 自動生産（メインループ・完全連動＆超軽量版） ---
@@ -1132,7 +1131,7 @@ function updateBgmButtonDisplay() {
 
 
 
-// --- 11. 転生（プレステージ）の計算とリセット処理（ノーリロード・BGM継続版） ---
+// --- 11. 転生（プレステージ）の計算とリセット処理（3週間長期戦ビルド・完全連動版） ---
 const currentChipsEl = document.getElementById('current-chips');
 const incomingChipsEl = document.getElementById('incoming-chips');
 const doAscendBtn = document.getElementById('do-ascend-btn');
@@ -1185,18 +1184,33 @@ if (doAscendBtn) {
             // 【本家仕様】永久売上倍率は「1個につき +1%（0.01）の足し算」
             gameState.prestigeMultiplier = 1.0 + (gameState.prestigeChips * 0.01);
 
-            // 2. 🌟【改善】リロードさせず、データだけをその場で初期状態に戻す！
+            // 2. 🌟リロードさせず、データだけをその場で初期状態に戻す！
             gameState.money = 0;
             gameState.mps = 0;
             gameState.seasonMoney = 0; // 今世の売上をゼロにリセット！
 
-            // 3. すべての施設を所持数0・初期価格にリセット（新価格対応）
+            // 3. 🌟【3週間長期戦ビルド対応】すべての施設を所持数0・正しい初期価格にリセット！
             const defaultCosts = {
-                flyer: 15, board: 100, sns: 1100, bike: 12000, worker: 130000,
-                oven: 1400000, chef: 20000000, car: 330000000, drone: 5100000000, neon: 75000000000,
-                factory: 1100000000000, fridge: 14000000000000, lab: 170000000000000, brain: 2100000000000000,
-                alchemy: 26000000000000000, elevator: 310000000000000000, moon: 3800000000000000000,
-                wormhole: 45000000000000000000, parallel: 540000000000000000000, universe: 6400000000000000000000
+                flyer: 15, 
+                board: 100, 
+                sns: 1100, 
+                bike: 12000, 
+                worker: 130000,
+                oven: 1400000, 
+                chef: 20000000, 
+                car: 330000000, 
+                drone: 5100000000, 
+                neon: 75000000000,
+                factory: 1100000000000, 
+                fridge: 14000000000000, 
+                lab: 170000000000000, 
+                brain: 2100000000000000,
+                alchemy: 26000000000000000, 
+                elevator: 310000000000000000, 
+                moon: 3800000000000000000,
+                wormhole: 45000000000000000000, 
+                parallel: 540000000000000000000, 
+                universe: 6400000000000000000000
             };
 
             if (typeof facilities !== 'undefined') {
@@ -1214,13 +1228,13 @@ if (doAscendBtn) {
                 });
             }
 
-            // 5. 🌟【重要】リロードを挟まないため、古いショップボタンを一度消去して真っさらにする！
+            // 5. 🌟古いショップボタンを一度消去して真っさらにする！
             const facilitiesArea = document.getElementById('shop-area-facilities');
             const comfortArea = document.getElementById('shop-area-comfort');
             if (facilitiesArea) facilitiesArea.innerHTML = "";
             if (comfortArea) comfortArea.innerHTML = "";
 
-            // 初期化された新価格をもとに、ショップの売り場（ボタン）を即座に再生成！
+            // 正しい長期戦初期価格データをもとに、ショップのボタンをきれいに再生成！
             if (typeof createShop === 'function') createShop();    
             if (typeof createComfortShop === 'function') createComfortShop(); 
 
@@ -1242,10 +1256,11 @@ if (doAscendBtn) {
             if (typeof saveGame === 'function') saveGame(); 
 
             // 🎵 リロードが起きないため、このアラートが出ている最中も裏でBGMが気持ちよく流れ続けます！
-            alert(`🌌 転生に成功しました！\n天界の調味料の力で、あなたのレストランの新しい歴史が始まります。\n現在の永久売上倍率: ${gameState.prestigeMultiplier.toFixed(2)} 倍`);
+            alert(`🌌 転生に成功しました！\n天界 of 調味料の力で、あなたのレストランの新しい歴史が始まります。\n現在の永久売上倍率: ${gameState.prestigeMultiplier.toFixed(2)} 倍`);
         }
     });
 }
+
 
 // --- 12. ⚠️ 設定画面のデータ完全消去（リセット）システム ---
 const resetGameBtn = document.getElementById('reset-game-btn');

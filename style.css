@@ -29,8 +29,27 @@ body {
     padding-right: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center;        /* 🌟 タイトルやボタンの「中央揃え」はキープ */
     justify-content: center;
+    box-sizing: border-box;
+}
+
+/* 🌟【バグ修正】親の並び設定とケンカしないように、数字の箱を親の記述から外（独立）に出しました。
+   これにより古いブラウザでも100%等幅フォントとブレ防止が動くようになります */
+#money, #season-money, #mps, #total-money {
+    /* 🌟【最重要・その1】すべての数字、ドット、スペースの横幅を完全等幅にするプロパティ */
+    font-variant-numeric: tabular-nums !important;
+    
+    /* 🌟【最重要・その2】カチッとした等幅フォント（デジタル時計や電報風フォント）に変えます
+       これで「1」と「8」が切り替わるときの1ピクセル単位のブレが100%消滅します！ */
+    font-family: 'Courier New', Courier, monospace !important;
+    font-weight: bold;
+    
+    /* 🌟【最重要・その3】文字が中央でグワグワ揺れるのをがっちりロックする防衛策！
+       文字の横幅をある程度確保し、右詰めに固定することで、文字数が増減しても左側が一切ブレなくなります */
+    display: inline-block;
+    min-width: 140px;          /* 💡 単位（MやB）が付いたときでも入り切るちょうどいい横幅にロック */
+    text-align: right;         /* 🌟 常に右側を基準にして文字を固定する */
 }
 
 /* 2. 【新登場！】中央列：お店の発展エリア */
@@ -616,23 +635,30 @@ body {
     transform: scale(0.95);
 }
 
-/* 📋 レビュー画面専用の四角いポップアップ箱（スクロール・はみ出し完全対応版） */
+/* 📋 レビュー画面専用の四角いポップアップ箱（文字色バグ修正版） */
 .review-modal-content {
     max-width: 450px !important;
-    
-    /* 🌟【追加】スマホやPCの画面サイズに合わせて、高さを最大75%にがっちり固定！ */
     max-height: 75vh !important; 
-    
-    /* 🌟【追加】中身が75%の高さを超えたら、自動的にここだけ縦スクロールさせる魔法の1行 */
     overflow-y: auto !important;   
-    
-    /* 💡 スマホの「閉じるボタン」が画面下に埋まらないよう、箱の内側の下部に少し余白を作っておきます */
     padding-bottom: 20px !important; 
     
+    /* 🌟【最重要】背景がダークグレー（#2c3e50）なので、文字色を「純白（#ffffff）」に強制固定します */
     background: #2c3e50 !important;
-    color: #ffffff !important;
+    color: #ffffff !important;      /* 💡 これがないと文字が背景と同化して見えなくなります */
+    
     border: 3px solid #f1c40f;
+    box-sizing: border-box;
 }
+
+/* 🌟 ポップアップの中にあるタイトル文字自体の色も白くクッキリさせる設定 */
+.review-modal-content h3 {
+    color: #ffffff !important;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 20px;
+    text-align: center;
+}
+
 
 /* ⭐ 総合スコアの目立つエリア */
 .review-summary {
@@ -736,3 +762,20 @@ body {
     padding-top: 45px !important;
 }
 
+/* 📡 ニュース速報の中にあるリンク（aタグ）の色をクッキリ見やすく上書き！ */
+#news-ticker-text a {
+    color: #f1c40f !important;      /* 🌟 まだクリックしていない時の色を「鮮やかなゴールド」に固定 */
+    text-decoration: underline;     /* リンクであることが分かりやすいように下線をつける */
+    font-weight: 900;
+}
+
+/* 🌟【最重要】一度クリックして「訪問済み」になっても、絶対に紫色に変えさせない防衛策！ */
+#news-ticker-text a:visited {
+    color: #f1c40f !important;      /* 🌟 訪問済みになっても「ゴールド」のままキープしてだるさを解決 */
+}
+
+/* 🖱️ ニュースの中のリンクにマウスを乗せたとき（指で触れたとき）のエフェクト */
+#news-ticker-text a:hover {
+    color: #ffffff !important;      /* フワッと白く光らせて、押せることをプレイヤーに伝えます */
+    text-decoration: none;          /* マウスが乗った瞬間に下線をスッと消すオシャレ演出 */
+}
