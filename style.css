@@ -255,7 +255,9 @@ body {
     margin-top: 0;
     margin-bottom: 0.8vw;
     color: #333333;
-    font-size: 2.8vw;     /* 巨大なサイズはそのままキープ！ */
+    
+    /* 💡 2.8vw から 2.5vw へ、本当にほんの少しだけ小さく調整 */
+    font-size: 2.5vw !important;     
     
     /* 🌟【超重要】これで絶対に改行させず、1行にがっちりロックします */
     white-space: nowrap !important; 
@@ -265,11 +267,14 @@ body {
     margin: 0.6vw 0;
     color: #555555;
     font-weight: bold;
-    font-size: 1.7vw;     /* 巨大なサイズはそのままキープ！ */
+    
+    /* 💡 1.7vw から 1.5vw へ、本当にほんの少しだけ小さく調整 */
+    font-size: 1.5vw !important;     
     
     /* 🌟【超重要】これで絶対に改行させず、1行にがっちりロックします */
     white-space: nowrap !important; 
 }
+
 
 /* =================================================================
    🌟【バグ修正】売上金額などの数字のブレ防止・等幅フォントロック
@@ -1061,6 +1066,121 @@ body {
 }
 
 
+/* =================================================================
+   📖 【サイズ＆余白最適化版】アイテム図鑑のコレクション棚デザイン
+================================================================= */
+#collection-grid-area {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1vw;              /* 隙間をわずかに引き締めてコンパクトに */
+    justify-content: flex-start;
+    align-content: flex-start;
+    background-color: rgba(0, 0, 0, 0.4); 
+    padding: 1.5vw;        /* 内側の余白を少し縮小 */
+    border-radius: 12px;
+    min-height: 20vh;      
+    max-height: 50vh;      /* 💡 高さを65vhから50vhに下げ、上下の余白を確保 */
+    overflow-y: auto;
+}
+
+/* 図鑑の中に並ぶ1個1個のアイテムマス */
+.collection-item-box {
+    /* 💡 全体が少し小さくなった分、1行に「5個」でジャストフィットする比率 */
+    width: calc(20% - 0.8vw) !important; 
+    aspect-ratio: 1 / 1 !important;
+    background-color: #34495e;
+    border: 0.15vw solid #f1c40f; 
+    border-radius: 8px;
+    padding: 0.8vw;        /* マスの中の余白を少し引き締め */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer !important;
+    z-index: 100000 !important;
+    transition: transform 0.1s ease, filter 0.1s ease; 
+}
+
+/* 💡 マスの中の画像は100%を維持してクッキリ大きく見せる */
+.collection-item-box .upgrade-icon-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    image-rendering: pixelated; 
+}
+
+/* 💻 PCホバー時：さらに見やすくするための拡大演出 */
+#collection-grid-area .collection-item-box:hover {
+    transform: scale(1.05); 
+    filter: brightness(1.15); 
+}
+
+/* まだ買ってない未獲得の道具を「影のシルエット」にする演出 */
+.collection-item-box.not-owned-yet {
+    border-color: #7f8c8d;
+    background-color: #1e272e;
+}
+.collection-item-box.not-owned-yet .upgrade-icon-img {
+    filter: brightness(0) opacity(0.25) !important; 
+}
+
+/* 🌟 獲得アイテム図鑑ボタン（PC版オシャレネイビー仕様） */
+#collection-btn {
+    background-color: #2c3e50 !important; 
+    color: #ffffff !important;
+    border: 0.15vw solid #bdc3c7 !important;
+    transition: all 0.15s ease !important;
+}
+
+/* マウスを乗せたとき */
+#collection-btn:hover {
+    background-color: #34495e !important;
+    border-color: #f1c40f !important;    
+    color: #f1c40f !important;           
+    transform: scale(1.05);
+}
+
+/* 🔴 画像の上でも親要素の指マークをそのまま引き継がせる */
+.collection-item-box * {
+    cursor: pointer !important;
+    pointer-events: none; 
+}
+
+/* 🔴 ツールチップの重なり順を一番手前に引き上げる */
+#tooltip {
+    position: absolute !important;
+    z-index: 999999 !important; 
+    pointer-events: none !important; 
+}
+
+/* 🔴 【ここを大きく変更！】図鑑の全体サイズを少し縮小し、上下左右の余白を均等に空ける */
+#collection-modal .modal-content {
+    position: relative !important;
+    z-index: 99999 !important;
+    
+    /* 💡 PC環境のとき、画面に対して程よい大きさに収める設定 */
+    @media (min-width: 769px) {
+        width: 70vw !important;        /* 💡 横幅を80vwから70vwに少し縮め、左右の余白をアップ */
+        max-width: 800px !important;   /* 広がりすぎストッパーも少しコンパクトに */
+        margin: 5vh auto !important;   /* 💡 上下に「5vh」のしっかりとした余白を持たせる */
+        padding: 2vw !important;       /* 全体的な圧迫感を減らすための内側余白調整 */
+    }
+}
+
+/* 🔴 アイテムボックスに確実にマウスが届くようにする */
+.collection-item-box {
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 100000 !important;
+}
+.collection-item-box * {
+    cursor: pointer !important;
+    pointer-events: none !important;
+}
+
+
 
 /* ----- ここからスマホ -----
 /* =================================================================
@@ -1121,7 +1241,7 @@ body {
     
     #money, #season-money, #mps, #total-money {
         min-width: 0 !important;        /* 💡 120pxの突っ張りを完全解除！ */
-        font-size: 3vw !important;      /* 数字もパネルの幅に合わせて自動でミニサイズにフィット */
+        font-size: 2.5vw !important;      /* 数字もパネルの幅に合わせて自動でミニサイズにフィット */
         display: inline !important;
     }
 
@@ -1487,6 +1607,22 @@ body {
         box-shadow: 0 8px 25px rgba(0,0,0,0.5) !important;
     }
 
+    /* =================================================================
+   📱【新設・スマホ専用】図鑑ポップアップ内の横並び調整（@mediaの中の末尾へ追記）
+================================================================= */
+    #collection-grid-area {
+        gap: 10px !important;
+        padding: 15px !important;
+    }
+    .collection-item-box {
+        width: calc(25% - 8px) !important; /* 🌟 スマホ画面なら横に「4つ」コンパクトに並べる */
+        border: 2px solid #f1c40f !important;
+        padding: 6px !important;
+    }
+    .collection-item-box.not-owned-yet {
+        border-color: #576574 !important;
+    }
 }
+
 
 

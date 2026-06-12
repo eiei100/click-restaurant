@@ -43,6 +43,7 @@
     <div id="menu-btn-group">
         <button id="setting-btn" class="menu-btn">⚙️ 設定</button>
         <button id="ascend-btn" class="menu-btn">🌌 転生</button>
+        <button id="collection-btn" class="menu-btn">📖 図鑑</button> <!-- 👈 🌟ここにボタンを追加！ -->
     </div>
     <!-- 現在のお店のランク名を表示する場所 -->
     <div id="restaurant-rank" class="center-rank">ランク1: 小さな屋台</div>
@@ -154,6 +155,28 @@
         <button id="close-ascend-btn" class="close-btn">戻る</button>
     </div>
 </div>
+
+<!-- =================================================================
+   📖 【新設・白箱完全統一版】購入済みアイテム図鑑ポップアップ画面（モーダル）
+================================================================= */ -->
+<!-- 💡 外枠のクラス名を設定・転生とお揃いの「modal-overlay」に完全同期！ -->
+<div id="collection-modal" class="modal-overlay hidden">
+    <!-- 💡 中の箱をダークネイビーから設定・転生とお揃いの美しい白箱「modal-content」に完全リフォーム！ -->
+    <div class="modal-content">
+        <h3>📖 獲得アイテム図鑑</h3>
+        <p>これまでに購入した手動クリック強化道具のコレクションです。</p>
+        
+        <!-- 🌟 ここに購入済みの道具アイコンが量産されます（白箱用に背景色などが自動で馴染みます） -->
+        <div id="collection-grid-area"></div>
+        
+        <br>
+        <!-- 💡 下側の閉じるボタン（設定・転生の「閉じる」「戻る」とサイズやデザインルールを100%統一） -->
+        <button id="collection-close-bottom-btn" class="close-btn">閉じる</button>
+    </div>
+</div>
+
+
+
 
 <div id="tooltip" class="hidden"></div>
 

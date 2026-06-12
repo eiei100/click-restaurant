@@ -125,36 +125,54 @@ const upgradeImages = {
     up_quantum: 'quantum.png', up_gravity: 'gravity.png', up_star: 'star.png', up_matrix: 'matrix.png', up_infinity: 'infinity.png'
 };
 
-// 🌟 道具の出現（アンロック）条件
-function isUpgradeUnlocked(up) {
-    if (up.bought) return false; // 💡 購入済みのものは出さない（本家仕様）
-    return gameState.seasonMoney >= up.cost * 0.4; // コストの40%の売上を達成したら出現
+// 🌟【新規追加：完全ガード】背景タップリセットの仕組みをシステム全体で1回だけ登録
+function initUpgradeShopGlobalListener() {
+    if (window.isUpgradeShopListenerInitialized) return;
+
+    document.addEventListener('pointerup', (e) => {
+        // 💡【安全ガード】タップされた要素がすでにDOMから消滅している場合は処理しない（エフェクト消滅時のエラー防止）
+        if (!e.target || !document.body.contains(e.target)) return;
+
+        // メインボタンやエフェクトを触っている時は処理をスキップ（安全ガード）
+        if (e.target.closest('#main-click-btn') || e.target.closest('.click-pop-effect') || e.target.closest('.click-effect') || e.target.closest('#coin-effect')) {
+            return;
+        }
+        
+        // タップされた場所が道具ボタン（またはその中身の画像など）ではない時
+        if (!e.target.closest('.upgrade-btn')) {
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) {
+                tooltip.classList.add('hidden');
+                delete tooltip.dataset.activeId; // 💡裏でのデータ更新追従との紐付けを完全にクリーンアップ
+            }
+            
+            // 画面上にあるすべての道具ボタンの選択状態を安全にリセット
+            document.querySelectorAll('.upgrade-btn.active-touch').forEach(btn => {
+                btn.classList.remove('active-touch');
+            });
+        }
+    }, { passive: true });
+
+    window.isUpgradeShopListenerInitialized = true;
 }
 
-// 🌟【最終完成版】道具ショップ（商品棚）を生成・追加するメイン関数（PCホバー＆スマホ2回タップ完全対応）
+
+// 🌟【完全版・バグ全消滅】道具ショップ（商品棚）を生成・追加するメイン関数
 function renderUpgradesShop() {
     const upgradeArea = document.getElementById('shop-area-upgrades');
     if (!upgradeArea) return;
 
+    // グローバルリスナーを確実に1回だけ初期化
+    initUpgradeShopGlobalListener();
+
     upgrades.forEach(up => {
-        // 出現条件を満たしていないなら何もしない
+        let btn = document.getElementById(`up-btn-${up.id}`);
+
+        // 出現条件を満たしていないなら画面から消して終了
         if (!isUpgradeUnlocked(up)) {
-            const existingBtn = document.getElementById(`up-btn-${up.id}`);
-            if (existingBtn) existingBtn.remove();
+            if (btn) btn.remove();
             return;
         }
-
-        // 🌟【最重要：重複作成のガード】すでに画面にこの道具のボタンがあるならスキップ（チカチカ完全消滅）
-        if (document.getElementById(`up-btn-${up.id}`)) {
-            return;
-        }
-
-        const btn = document.createElement('button');
-        btn.className = 'upgrade-btn';
-        btn.id = `up-btn-${up.id}`; 
-        
-        const imgFileName = upgradeImages[up.id] || 'default.png';
-        btn.innerHTML = `<img src="img/upgrades/${imgFileName}" class="upgrade-icon-img" alt="${up.name}" onerror="this.src='img/upgrades/default.png';">`;
 
         // =================================================================
         // 💡 ツールチップに最新テキストを流し込んで左側の壁に固定する処理
@@ -163,13 +181,16 @@ function renderUpgradesShop() {
             const tooltip = document.getElementById('tooltip');
             if (!tooltip) return;
             
+            // 常に呼び出された時点の最新の価格・説明を反映
             tooltip.innerHTML = `<strong>${up.name}</strong><br>
                                  <span style="color:#f1c40f;">価格: ${typeof formatNumber === 'function' ? formatNumber(up.cost) : up.cost} 円</span><br>
                                  <p style="margin:5px 0 0 0; font-size:12px; color:#bdc3c7;">${up.desc}</p>`;
             
             tooltip.classList.remove('hidden');
             
-            // 【完全ズーム耐性位置】ショップパネル（right-panel）の左隣にピタッと吸い付く計算
+            // dataset を使って「現在どのボタンのツールチップを開いているか」のIDを記録
+            tooltip.dataset.activeId = up.id;
+            
             const btnRect = btn.getBoundingClientRect();
             const containerRect = document.getElementById('game-container').getBoundingClientRect();
             const rightPanelRect = document.getElementById('right-panel').getBoundingClientRect();
@@ -179,9 +200,31 @@ function renderUpgradesShop() {
             tooltip.style.top = `${btnRect.top - containerRect.top}px`;
         }
 
-        // 💻 PC用：マウスが乗った瞬間に説明を出す
+        // 🌟【重複作成のガード＆データ更新】
+        if (btn) {
+            // お金が足りるかどうかに応じてクラスをリアルタイムに切り替え
+            btn.classList.toggle('can-buy', gameState.money >= up.cost);
+
+            // PCホバー/スマホ選択問わず、このボタンのツールチップが開かれているなら最新情報で再描画
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip && !tooltip.classList.contains('hidden') && tooltip.dataset.activeId === String(up.id)) {
+                showUpgradeTooltip();
+            }
+            return; 
+        }
+
+        // ボタンの新規生成
+        btn = document.createElement('button');
+        btn.className = `upgrade-btn ${gameState.money >= up.cost ? 'can-buy' : ''}`;
+        btn.id = `up-btn-${up.id}`; 
+        
+        const imgFileName = upgradeImages[up.id] || 'default.png';
+        btn.innerHTML = `<img src="img/upgrades/${imgFileName}" class="upgrade-icon-img" alt="${up.name}" onerror="this.src='img/upgrades/default.png';">`;
+
+        // 💻 PC用：マウスが乗った瞬側に説明を出す
         btn.addEventListener('mouseenter', () => {
             if (!btn.classList.contains('active-touch')) {
+                btn.classList.add('active-touch'); // データ更新追従のために選択状態にする
                 showUpgradeTooltip();
             }
         });
@@ -189,9 +232,12 @@ function renderUpgradesShop() {
         // 💻 PC用：マウスが離れたらツールチップを隠す
         btn.addEventListener('mouseleave', (e) => {
             const tooltip = document.getElementById('tooltip');
-            if (tooltip) tooltip.classList.add('hidden');
+            if (tooltip) {
+                tooltip.classList.add('hidden');
+                delete tooltip.dataset.activeId; // 紐付け解除
+            }
             
-            // 🌟【タッチ暴発ガード】スマホの指タッチによる誤作動の離脱なら目印を消さずにスルー！
+            // 🌟【タッチ暴発ガード】スマホの誤作動なら離脱スルー
             if (e.pointerType === 'touch' || matchMedia('(pointer: coarse)').matches) {
                 return; 
             }
@@ -201,53 +247,71 @@ function renderUpgradesShop() {
 
         // 📱 スマホ＆PC共通：クリック（タップ）したときの処理
         btn.addEventListener('click', (e) => {
-            // 💡 1回目：まだ目印（active-touch）が付いていないなら説明を出すだけ
-            if (!btn.classList.contains('active-touch')) {
-                const allUpBtns = upgradeArea.querySelectorAll('.upgrade-btn');
-                allUpBtns.forEach(b => b.classList.remove('active-touch'));
+            const isTouch = e.pointerType === 'touch' || matchMedia('(pointer: coarse)').matches;
 
-                // このボタンを選択状態にして終了
-                btn.classList.add('active-touch');
-                showUpgradeTooltip();
-                
-                e.stopPropagation(); 
-                return; 
+            if (isTouch) {
+                // =================================================================
+                // 📱 スマホ（タッチ）の場合：2ステップ購入（選択 → 購入）
+                // =================================================================
+                if (!btn.classList.contains('active-touch')) {
+                    const allUpBtns = upgradeArea.querySelectorAll('.upgrade-btn');
+                    allUpBtns.forEach(b => b.classList.remove('active-touch'));
+
+                    btn.classList.add('active-touch');
+                    showUpgradeTooltip();
+                    
+                    e.stopPropagation(); 
+                    return; 
+                }
             }
 
-            // 🌟 2回目：すでに選択状態なら、確実にお金を減らして購入処理を実行！
+            // =================================================================
+            // 💰 実際の購入処理（PCの1クリック目、またはスマホの2タップ目で実行）
+            // =================================================================
             if (gameState.money >= up.cost) {
                 gameState.money -= up.cost;
                 up.bought = true; 
 
                 const tooltip = document.getElementById('tooltip');
-                if (tooltip) tooltip.classList.add('hidden');
+                if (tooltip) {
+                    tooltip.classList.add('hidden');
+                    delete tooltip.dataset.activeId;
+                }
 
+                btn.classList.remove('active-touch'); 
                 btn.remove(); 
                 
+                // 💡 画面更新（この中で次のショップ棚の再レンダリングを呼び出すのが最も安全）
                 if (typeof updateDisplay === 'function') updateDisplay(); 
+            } else {
+                // 💡 お金が足りない場合の処理
+                btn.classList.remove('active-touch');
+                const tooltip = document.getElementById('tooltip');
+                if (tooltip) {
+                    tooltip.classList.add('hidden');
+                    delete tooltip.dataset.activeId;
+                }
             }
         });
 
-        // 📱 スマホ用空振り救済：道具ボタン以外の場所（背景など）を触ったら選択状態をリセット
-        // 💡【バグ修正】pointerdownから「pointerup（指が離れた瞬間）」に変更し、かつメインボタンや道具ボタンそのもの、
-        // またはボタンの中身（画像など）を触っている時は、このリセット処理を絶対に通過させない安全ガードを追加！
-        document.addEventListener('pointerup', (e) => {
-            if (e.target.closest('#main-click-btn') || e.target.closest('.click-pop-effect') || e.target.closest('.click-effect') || e.target.closest('#coin-effect')) {
-                return;
-            }
-            
-            // タッチされた場所が、この道具ボタン自体、またはボタンの内部（<img>など）ではない時だけ安全に閉じます
-            if (e.target !== btn && !btn.contains(e.target)) {
-                const tooltip = document.getElementById('tooltip');
-                if (tooltip) tooltip.classList.add('hidden');
-                btn.classList.remove('active-touch');
-            }
-        }, { passive: true });
-
-        // 🌟 新しく出現したボタンを商品棚の末尾にピタッと追加
+        // 商品棚の末尾に追加
         upgradeArea.appendChild(btn);
     });
 }
+
+// =================================================================
+// 🍳 道具（アップグレード）の出現（アンロック）条件チェック関数
+// =================================================================
+// 💡 この関数が renderUpgradesShop から呼び出されるため、確実にファイル内に記述しておきます
+function isUpgradeUnlocked(up) {
+    if (!up) return false;
+    if (up.bought) return false; // 💡 すでに購入済みのものはショップに出さない（本家仕様）
+    
+    // コストの40%の売上（今世の累計売上）を達成したらショップに出現
+    return gameState.seasonMoney >= up.cost * 0.4; 
+}
+
+
 
 // 🌟 ショップの3つのタブ（施設・店舗設備・道具）の切り替えイベントの全初期化
 function initShopTabs() {
@@ -276,6 +340,150 @@ function initShopTabs() {
             }
         });
     });
+}
+
+// =================================================================
+// 📖 【エラー修正版】獲得アイテム図鑑ポップアップの制御 ＆ リアルタイム生成システム
+// =================================================================
+
+// 💡 重複エラーを避けるため、図鑑専用の判定関数名に変更
+const isCollectionTouchDevice = () => window.matchMedia('(pointer: coarse)').matches;
+
+// 🌟 図鑑の画面（グリッド棚）をリアルタイムに組み立てる関数
+function renderCollectionDatabase() {
+    const gridArea = document.getElementById('collection-grid-area');
+    if (!gridArea) return;
+
+    gridArea.innerHTML = ''; // 一度中身を真っさらにリセット
+
+    // 全20種類の道具データをループ処理
+    upgrades.forEach(up => {
+        const box = document.createElement('div');
+        box.className = 'collection-item-box';
+        
+        const imgFileName = upgradeImages[up.id] || 'default.png';
+
+        // 🌟【分岐処理】すでに購入済みのコレクションか、まだ見ぬ未獲得アイテムか
+        if (up.bought) {
+            // ① 購入済み：カラーで綺麗にドット絵画像を表示
+            box.innerHTML = `<img src="img/upgrades/${imgFileName}" class="upgrade-icon-img" alt="${up.name}" onerror="this.src='img/upgrades/default.png';">`;
+        } else {
+            // ② 未獲得：シルエット画像は出さず、中央に「？」を表示して隠す！
+            box.classList.add('not-owned-yet');
+            box.innerHTML = `<span class="question-mark">？</span>`;
+        }
+
+        // =================================================================
+        // 💡 ツールチップの位置計算（全デバイス共通：常にアイテムの真上に配置）
+        // =================================================================
+        function showCollectionTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            if (!tooltip) return;
+
+            if (up.bought) {
+                tooltip.innerHTML = `<strong>📖 【獲得済み】${up.name}</strong><br><p style="margin:5px 0 0 0; font-size:12px; color:#bdc3c7;">${up.desc}</p>`;
+            } else {
+                tooltip.innerHTML = `<strong>🔒 未獲得の道具</strong><br><span style="color:#e74c3c;">価格: ${typeof formatNumber === 'function' ? formatNumber(up.cost) : up.cost} 円</span><br><p style="margin:5px 0 0 0; font-size:12px; color:#95a5a6;">この周回でまだ購入していない秘密の道具です。お金を貯めてショップにアンロックされたら手に入れよう！</p>`;
+            }
+            
+            // 先に非表示クラスを解除し、幅・高さのレイアウト計算ができる状態にする
+            tooltip.classList.remove('hidden');
+
+            // 📐【完全ズーム耐性計算】要素の位置とサイズをリアルタイム計測
+            const boxRect = box.getBoundingClientRect();
+            const containerRect = document.getElementById('game-container').getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+
+            // 💡 アイテムの左右中央の位置にツールチップのセンターを合わせる計算
+            const targetLeft = boxRect.left - containerRect.left + (boxRect.width / 2) - (tooltipRect.width / 2);
+            
+            // 🛡️ 画面（ゲームコンテナ）の左右端から絶対にはみ出さない安全ガード（余白10px）
+            const maxLeft = containerRect.width - tooltipRect.width - 10;
+            tooltip.style.left = `${Math.max(10, Math.min(targetLeft, maxLeft))}px`;
+            
+            // 💡 アイテムの少し上（隙間8px）にピッタリ配置
+            tooltip.style.top = `${boxRect.top - containerRect.top - tooltipRect.height - 8}px`;
+
+            // 🔴 ツールチップの重なり順を最前面へ引き上げる！
+            tooltip.style.zIndex = "999999";
+        }
+
+        // 💻 PC用：ホバー時にツールチップを表示
+        box.addEventListener('mouseenter', () => {
+            if (isCollectionTouchDevice()) return; 
+            if (!box.classList.contains('active-touch')) {
+                showCollectionTooltip();
+            }
+        });
+
+        // 💻 PC用：マウスが離れたら隠す
+        box.addEventListener('mouseleave', (e) => {
+            if (isCollectionTouchDevice() || e.pointerType === 'touch') return; 
+            
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip) tooltip.classList.add('hidden');
+            box.classList.remove('active-touch');
+        });
+
+        // 📱 スマホ用：タップでツールチップを表示（ショップと操作感を完全同期）
+        box.addEventListener('click', (e) => {
+            if (!box.classList.contains('active-touch')) {
+                const allBoxes = gridArea.querySelectorAll('.collection-item-box');
+                allBoxes.forEach(b => b.classList.remove('active-touch'));
+
+                box.classList.add('active-touch');
+                showCollectionTooltip();
+                e.stopPropagation(); // 背景リセットの暴発を防ぐ
+            }
+        });
+
+        gridArea.appendChild(box);
+    });
+}
+
+
+// 💡 イベントの重複登録（二重発火）を防ぐための安全ガード用フラグ
+let isCollectionEventsInitialized = false;
+
+// 🌟 図鑑ポップアップの「開く」「閉じる」ボタンのクリックイベントを登録する関数
+function initCollectionModalEvents() {
+    if (isCollectionEventsInitialized) return; // 既に登録済みなら処理を完全スキップ
+
+    const openBtn = document.getElementById('collection-btn');
+    const closeXBtn = document.getElementById('close-collection-btn');
+    const closeBotBtn = document.getElementById('collection-close-bottom-btn');
+    const modal = document.getElementById('collection-modal');
+
+    if (!openBtn || !modal) return;
+
+    // 「図鑑」ボタンが押されたとき
+    openBtn.addEventListener('click', () => {
+        renderCollectionDatabase();
+        modal.classList.remove('hidden');
+    });
+
+    // 共通のクローズ処理
+    const closeModal = () => {
+        modal.classList.add('hidden');
+        const tooltip = document.getElementById('tooltip');
+        if (tooltip) tooltip.classList.add('hidden');
+        
+        // スマホ用の選択状態もまとめて綺麗にリセット
+        document.querySelectorAll('.collection-item-box.active-touch').forEach(b => b.classList.remove('active-touch'));
+    };
+
+    if (closeXBtn) closeXBtn.addEventListener('click', closeModal);
+    if (closeBotBtn) closeBotBtn.addEventListener('click', closeModal);
+
+    // 📱💻 【ここを大きく変更！】アイテム以外の場所（薄暗い背景など）をクリック・タップしたら図鑑を閉じる
+    modal.addEventListener('pointerup', (e) => {
+        // クリックした場所が「アイテムボックス」でも「図鑑の白いメイン枠（modal-content）」でもない場合
+        if (!e.target.closest('.collection-item-box') && !e.target.closest('.modal-content')) {
+            closeModal(); // 💡 図鑑を安全に閉じる
+        }
+    }, { passive: true });
+
+    isCollectionEventsInitialized = true; // 初回登録完了の印を立てる
 }
 
 
@@ -1788,9 +1996,18 @@ window.addEventListener('load', async () => {
     if (typeof setupShopTabs === 'function') setupShopTabs(); 
     
     // =================================================================
-    // 🍳 【ここを追加】道具（アップグレード）ショップの初期化
+    // 🍳 道具ショップ ＆ 📖 アイテム図鑑の初期化
     // =================================================================
-    // 3列が密着した大画面のボードが完成したタイミングで、道具用の3つのタブ切り替えを有効にし、
+    // 🌟【新設】ショップが組み上がる前に、背景タップで説明を安全に閉じる仕組みをがっちり起動！
+    if (typeof initUpgradeShopGlobalListener === 'function') {
+        initUpgradeShopGlobalListener();
+    }
+
+    // 🌟【新設】ゲーム起動時に、図鑑ポップアップを開閉するイベントをカチッと登録！
+    if (typeof initCollectionModalEvents === 'function') {
+        initCollectionModalEvents();
+    }
+
     // 現在の所持金や売上条件に合わせた「本家風の四角いボタン（商品棚）」を初期生成します。
     if (typeof renderUpgradesShop === 'function') renderUpgradesShop();
     
