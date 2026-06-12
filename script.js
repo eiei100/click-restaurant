@@ -901,6 +901,19 @@ window.addEventListener('click', (e) => {
     }
 });
 
+// 6-5. バツ印での追加
+// 🌟 右上の×（バツ）印ボタンを押したときも口コミ画面を閉じる
+const closeReviewXBtn = document.getElementById('close-review-x-btn');
+if (closeReviewXBtn) {
+    closeReviewXBtn.addEventListener('click', () => {
+        const reviewModal = document.getElementById('review-modal');
+        if (reviewModal) {
+            reviewModal.classList.add('hidden');
+        }
+    });
+}
+
+
 // =================================================================
 // 📡 本家風・ティッカーニュース速報（1周ごとに確実に切り替わる完全版）
 // =================================================================

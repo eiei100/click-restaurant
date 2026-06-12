@@ -729,15 +729,48 @@ body {
 }
 
 .review-modal-content {
+    /* 🌟 ここを追加！これでバツボタンを右上に正確にロックします */
+    position: relative !important; 
+    
     max-width: 450px !important;
     max-height: 75vh !important; 
     overflow-y: auto !important;   
+    padding-top: 35px !important;    /* 💡 タイトルとバツ印が被らないように上のすき間を確保 */
     padding-bottom: 20px !important; 
     background: #2c3e50 !important;
     color: #ffffff !important;      
     border: 3px solid #f1c40f;
     box-sizing: border-box;
 }
+
+/* 🌟 口コミポップアップ専用：夜のレストラン風のバツ印デザイン */
+.modal-x-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 26px;       /* 押しやすい大きさ */
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.5); /* 💡 普段は文字の邪魔をしない半透明の白 */
+    cursor: pointer;
+    line-height: 1;
+    padding: 5px;
+    transition: color 0.15s ease, transform 0.15s ease;
+    z-index: 100;          /* タイトルより手前に出す */
+}
+
+/* マウスを乗せたときは枠線とお揃いの美しいゴールドに光る */
+.modal-x-btn:hover {
+    color: #f1c40f;       /* 💡 枠線と同じゴールドに変化 */
+    transform: scale(1.2); /* 💡 ほんの少しだけ大きくして心地いい反応を返す */
+}
+
+/* クリックした瞬間は少し引っ込む */
+.modal-x-btn:active {
+    transform: scale(0.95);
+}
+
 
 .review-modal-content h3 {
     color: #ffffff !important;
