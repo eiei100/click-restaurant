@@ -1,41 +1,87 @@
-/* 画面全体の基本設定 */
+/* =================================================================
+   🎨 画面全体の基本設定（全画面フルスクリーン・スクロール完全禁止）
+================================================================= */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; /* 🌟 画面全体が上下左右にガタガタ揺れるのを完全ロック */
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f7e1d7; /* 美味しそうな薄いベージュ色 */
-    text-align: center;
-    margin: 0;
-    padding: 20px;
-    user-select: none; /* 連打時のはみ出し選択を防ぐ記述をブレンド */
+    user-select: none;         /* 連打時のはみ出し選択を防止 */
+    box-sizing: border-box;
+    padding: 10px;             /* 💡 画面の一番外側にほんの少しだけ隙間を作る */
+    padding-top: 45px !important; /* 💡 ニュース帯が45pxに巨大化したのでゲーム全体を下にずらす */
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* ゲーム全体を包むコンテナ（ここを3列にする！） */
+/* 🌟 ゲーム全体を包むコンテナ（画面の縦横いっぱいに100%広げる！） */
 #game-container {
-    max-width: 1200px; /* 3列にするので、横幅をさらに広く（1200px）します */
-    margin: 20px auto;
+    width: 100%;
+    height: 100%;
     background-color: white;
-    padding: 20px;
+    padding: 15px;
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-sizing: border-box;
     
-    display: flex; /* これで3つの部屋が自動的に横一列に並びます */
-    gap: 20px;     /* 部屋と部屋の間のすき間 */
-    position: relative; /* 【追加】引っ越してきたツールチップの基準点にする設定 */
+    display: flex;     /* 💡 これで3つの部屋が自動的に横一列に並びます */
+    gap: 15px;         /* 部屋と部屋の間のちょうどいいすき間 */
+    position: relative; 
 }
+
+/* =================================================================
+   📐 3列の黄金比率（元の綺麗だったバランスのまま、縦幅を100%固定）
+================================================================= */
 
 /* 1. 左列：クリックエリア */
 #left-panel {
-    flex: 1; /* 横幅の比率 */
-    border-right: 2px dashed #f7e1d7; /* 右側に点線の区切りを入れる */
-    padding-right: 20px;
+    flex: 1;            /* 横幅の比率 */
+    height: 100%;       /* 💡 縦幅を100%に固定 */
+    border-right: 2px dashed #f7e1d7; /* 右側に点線の区切り */
+    padding-right: 15px;
     display: flex;
     flex-direction: column;
-    align-items: center;        /* 🌟 タイトルやボタンの「中央揃え」はキープ */
+    align-items: center;        
     justify-content: center;
     box-sizing: border-box;
 }
 
-/* 🌟【バグ修正】親の並び設定とケンカしないように、数字の箱を親の記述から外（独立）に出しました。
-   これにより古いブラウザでも100%等幅フォントとブレ防止が動くようになります */
+/* 2. 中央列：お店の発展エリア */
+#center-panel {
+    flex: 1.2;          /* 真ん中を目立たせるために、少しだけ広く（1.2倍） */
+    height: 100%;       /* 💡 縦幅を100%に固定 */
+    border-right: 2px dashed #f7e1d7; /* 右側に点線の区切り */
+    padding-right: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* 💡 中央のイラストや文字を上下の真ん中に寄せる */
+    box-sizing: border-box;
+}
+
+/* 🏢 3. 右列：ショップエリア（親の箱） */
+#right-panel {
+    flex: 1;            /* 横幅の比率 */
+    height: 100%;       /* 💡 縦幅を画面いっぱいの100%に固定 */
+    position: relative;   
+    
+    display: flex;
+    flex-direction: column; 
+    overflow: hidden;     /* 🌟 親はスクロールさせず、はみ出たボタンを隠して子にパスする */
+    box-sizing: border-box;
+}
+
+/* =================================================================
+   🌟【バグ修正】売上金額などの数字のブレ防止・等幅フォントロック
+================================================================= */
 #money, #season-money, #mps, #total-money {
     /* 🌟【最重要・その1】すべての数字、ドット、スペースの横幅を完全等幅にするプロパティ */
     font-variant-numeric: tabular-nums !important;
@@ -51,83 +97,29 @@ body {
     min-width: 140px;          /* 💡 単位（MやB）が付いたときでも入り切るちょうどいい横幅にロック */
     text-align: right;         /* 🌟 常に右側を基準にして文字を固定する */
 }
+/* =================================================================
+   🛒 ショップ・売り場エリア（スクロール・ボタン設定）
+================================================================= */
 
-/* 2. 【新登場！】中央列：お店の発展エリア */
-#center-panel {
-    flex: 1.2; /* 真ん中を目立たせるために、少しだけ幅を広く（1.2倍）します */
-    border-right: 2px dashed #f7e1d7; /* 右側に点線の区切りを入れる */
-    padding-right: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* 🏢 3. 右列：ショップエリア（タイトルやタブを固定する親の箱） */
-#right-panel {
-    flex: 1;              /* 横幅の比率（元のまま） */
-    max-height: 700px;    /* ショップ全体の最大縦幅を700pxに固定（元のまま） */
-    position: relative;   /* ツールチップ追従用（元のまま） */
-    padding-right: 5px;   
-    
-    /* 🌟【大改造】中身を上から下へ綺麗に整列させ、ショップ全体としては絶対に画面外へはみ出さないようにロックします */
-    display: flex;
-    flex-direction: column; 
-    overflow: hidden;     /* 🌟 親はスクロールさせず、はみ出たボタンを隠して子にパスする */
-    box-sizing: border-box;
-}
-
-/* 🌟【新設】ボタンがJavaScriptで自動量産される売り場エリア（施設用・店舗設備用共通の箱） */
-.shop-continer {
+/* 🛒 ボタンがJavaScriptで自動量産される売り場エリア
+   （※スペルミス防止のため、既存の「shop-continer」と、正しい「shop-container」の両方に対応） */
+.shop-continer, .shop-container {
     width: 100%;
     
-    /* 🌟【最重要】上のタイトル、タブ、購入数セレクターの分を引いた「残りの全スペース」を売り場の縦幅にします */
+    /* 💡【最重要】上のタイトルやタブの分を引いた「残りの全縦スペース」をこの売り場が自動で担当します */
     flex: 1; 
     
-    /* 🌟【最重要】親から引っ越してきた魔法の1行。ボタンが入り切らなくなったらここだけがスイスイ縦スクロールします！ */
+    /* 💡【最重要】これがないとボタンが突き抜けます。縦幅をこの割り当てられたスペース内にがっちりロック！ */
+    min-height: 0; 
+    
+    /* 💡 ボタンが入り切らなくなったら、この枠内だけがスイスイ縦スクロールします */
     overflow-y: auto !important; 
     
-    padding-right: 10px;  /* 🌟 スクロールバーと施設ボタンが重ならないための元の隙間 */
+    padding-right: 10px; /* スクロールバーと施設ボタンが重ならないための隙間 */
     box-sizing: border-box;
-}
-
-
-/* 中央列の文字や絵文字の見た目 */
-#restaurant-rank {
-    font-size: 20px;
-    font-weight: bold;
-    color: #e67e22; /* 綺麗なお焦げオレンジ色 */
-    margin-top: 10px;
-}
-
-#restaurant-visual {
-    font-size: 100px; /* 絵文字をめちゃくちゃ大きく表示する */
-    margin-top: 40px;
-}
-
-/* クリックエリアとメインボタン */
-#click-area {
-    margin: 20px 0;
-    width: 100%; /* 横幅いっぱいに広げる */
-}
-
-#main-click-btn {
-    font-size: 32px;
-    width: 300px;  /* 横幅を300pxに巨大化 */
-    height: 300px; /* 縦幅も300pxにして綺麗な正円にする */
-    border-radius: 50%; /* 完全な丸（正円） */
     
-    background-color: #ff9f43; /* 美味しそうなオレンジ色 */
-    color: white;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 10px #ee5253; /* 厚みも少し深くして立体感をアップ */
-    transition: 0.05s; /* クリックした時の沈み込みをさらに高速に */
-}
-
-/* ボタンを押したときのカチッとする動き */
-#main-click-btn:active {
-    box-shadow: 0 3px #ee5253;
-    transform: translateY(7px); /* 深く沈み込むようにして叩き心地を強化 */
+    /* スマホでスクロールした時にカクつかず滑らかに動かす魔法の1行 */
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ショップのボタン */
@@ -147,12 +139,30 @@ body {
     text-align: left;
 }
 
-
 /* お金が足りなくてボタンが押せないとき */
 .shop-btn:disabled {
     background-color: #c8d6e5; /* グレーに変える */
     pointer-events: auto;      /* マウスの反応をオンにする */
     cursor: pointer;           /* 【修正】指マーク（ポインター）にする */
+}
+
+/* ロックされている未解放の施設ボタン */
+.shop-btn.locked-facility {
+    background-color: #34495e !important; /* ショップの背景に溶け込む暗いグレー */
+    border: 1px dashed #7f8c8d; /* 点線の枠 */
+    color: #7f8c8d !important;   /* 文字を暗く */
+    cursor: not-allowed;          /* 禁止マークのカーソル */
+    opacity: 0.5;
+}
+
+/* 🌟店舗設備が「導入済み（売り切れ）」になった時の豪華デザイン */
+.shop-btn.comfort-sold {
+    background: linear-gradient(135deg, #ffeaa7, #ffb142) !important; /* 豪華なゴールドのグラデーション */
+    color: #2c3e50 !important;                                    /* 文字を読みやすい濃いネイビーに */
+    border: 2px solid #cc8e35 !important;                          /* 高級感のあるゴールドの太枠 */
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);                  /* ほんのりゴールドに光るエフェクト */
+    cursor: default !important;                                    /* 買えないので指マークは消す */
+    font-weight: bold;
 }
 
 /* 自作ツールチップをボタンの左外側（中央列の上）に浮かせるデザイン */
@@ -173,10 +183,9 @@ body {
     pointer-events: none; /* マウスを透過させて邪魔しない */
 }
 
-/* ポップアップを非表示にするためのクラス */
-.hidden {
-    display: none !important;
-}
+/* =================================================================
+   👆 クリックエリア・メインボタン・連打エフェクト
+================================================================= */
 
 /* 🍳 料理ボタンを包む親のエリア（元の綺麗なレイアウトをがっちり維持！） */
 #click-area {
@@ -189,18 +198,26 @@ body {
 /* 🍳 料理を作るメインボタン自体の設定 */
 #main-click-btn {
     width: 100%;            /* 親のclick-areaに合わせて横幅いっぱいに */
+    height: 300px;          /* 縦幅も300pxにして綺麗な正円にする */
+    max-width: 300px;       /* 横幅を300pxに巨大化（※綺麗に丸くなるよう制限） */
+    border-radius: 50%;     /* 完全な丸（正円） */
     padding: 20px;          /* 押しやすいように内側の厚みを確保 */
-    font-size: 18px;        /* 文字の見やすさ */
+    font-size: 32px;        /* 文字の見やすさ */
     font-weight: bold;
+    background-color: #ff9f43; /* 美味しそうなオレンジ色 */
+    color: white;
+    border: none;
     cursor: pointer;
+    box-shadow: 0 10px #ee5253; /* 厚みも少し深くして立体感をアップ */
+    transition: 0.05s;      /* クリックした時の沈み込みをさらに高速に */
     box-sizing: border-box; /* 絶対に横にはみ出さないようにガードする魔法の1行 */
 }
 
-
-/* =================================================================
-   💥 以下はタップ位置連動エフェクト用（親のレイアウトを1ミリも邪魔しません）
-   ================================================================= */
-
+/* ボタンを押したときのカチッとする動き */
+#main-click-btn:active {
+    box-shadow: 0 3px #ee5253;
+    transform: translateY(7px); /* 深く沈み込むようにして叩き心地を強化 */
+}
 /* 💸 連打した指の真下から湧き出る金額テキスト（🍳 +〇〇） */
 .click-pop-effect {
     position: absolute;     /* 🌟 click-areaの枠の中を基準に配置 */
@@ -239,7 +256,7 @@ body {
     width: 32px;  
     height: 32px; 
     
-    /* 🌟【中心ズレ根絶】画像の左上ではなく、画像の「ど真ん中」が指の真芯に重なるように調整 */
+    /* 🌟【中心ズレ根根絶】画像の左上ではなく、画像の「ど真ん中」が指の真芯に重なるように調整 */
     margin-left: -16px;     /* 横幅32pxのちょうど半分マイナス */
     margin-top: -16px;      /* 縦幅32pxのちょうど半分マイナス */
     
@@ -259,9 +276,138 @@ body {
     }
 }
 
+/* =================================================================
+   🏪 中央列：レストラン・ステージと建物の設定（お店の位置変更版）
+================================================================= */
+#restaurant-rank {
+    font-size: 20px;
+    font-weight: bold;
+    color: #e67e22; /* 綺麗なお焦げオレンジ色 */
+    margin-top: 10px;
+}
 
+#restaurant-stage {
+    display: block;           
+    /* 💡 フォルダ名を「img/background/」に修正しました */
+    background-image: var(--current-bg, url("img/background/bg_day.png"));
+    background-size: cover;          
+    background-position: center;     
+    background-repeat: no-repeat;    
+    
+    border: 3px solid #c8d6e5;  
+    border-radius: 24px;        
+    padding: 0;
+    margin-top: 25px;
+    overflow: hidden;         
+    position: relative;       
+    width: 100%;                
+    height: 480px;            
+    box-sizing: border-box;
+    box-shadow: inset 0 15px 30px rgba(0,0,0,0.1); 
+    transition: background-image 1.0s ease-in-out;
+}
 
-/* 設定・転生ボタンのスタイル */
+/* 🏪 レストランの建物（280pxの基地として画面中央に強制固定） */
+#restaurant-building-box {
+    position: absolute;
+    top: 70%;                 /* 🌟【変更】60% ➔ 70% にして、お店の位置を下に下げました */
+    left: 50%;
+    /* 🌟【超重要】transformの translateX(-50%) とは別に、
+       基地自体のサイズ（280px）をあらかじめがっちり確保して、左右にブレる余地をゼロにします */
+    transform: translate(-50%, -50%); 
+    width: 280px !important;  /* !importantでサイズを強制固定 */
+    height: 280px !important;
+    display: block;           /* flexからblockに戻して、中の要素の幅に引っ張られないようにする */
+    z-index: 5;               
+}
+
+/* 🏪 実際のお店（画像用ベース設定） */
+#restaurant-visual {
+    width: 100% !important;   
+    height: 100% !important;  
+    display: block;
+    user-select: none;
+    object-fit: contain;      
+}
+
+/* 💰 お金とテキストが完全連結したエフェクト（初期状態は透明で待機） */
+#coin-effect {
+    position: absolute;
+    top: 10px;               
+    left: 50%;                
+    transform: translateX(-50%); 
+    transform-origin: center center;
+    text-align: center;       
+    font-size: 42px;          
+    font-weight: bold;
+    color: #4cd137;           
+    text-shadow: 2px 2px 0px #ffffff, -2px -2px 0px #ffffff, 2px -2px 0px #ffffff, -2px 2px 0px #ffffff;
+    white-space: nowrap;
+    opacity: 0; 
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* 🌟【新設】JSでこのクラスがついた瞬間だけ、1回だけ垂直にジャンプして消える */
+#coin-effect.show-coin {
+    animation: coinJump 1.2s ease-out forwards; 
+}
+
+/* 🎬 左右に1ミリもブレず、ド真ん中から真っ直ぐお空へ昇天するアニメーション */
+@keyframes coinJump {
+    0% { 
+        opacity: 0; 
+        transform: translateX(-50%) translateY(0); 
+    } 
+    /* お会計の瞬間：パッと現れて少し上に跳ねる */
+    15% { 
+        opacity: 1; 
+        transform: translateX(-50%) translateY(-40px); 
+    } 
+    /* 視認しやすいように、少しの間その場で文字をキープ */
+    70% { 
+        opacity: 1; 
+        transform: translateX(-50%) translateY(-40px); 
+    } 
+    /* 消滅：さらに上にスッと昇りながら消えていく */
+    100% { 
+        opacity: 0; 
+        transform: translateX(-50%) translateY(-90px); 
+    } 
+}
+/* =================================================================
+   🚶 歩行するお客さんの設定
+================================================================= */
+.walking-guest {
+    position: absolute;
+    bottom: 45px;            
+    left: -100px; 
+    width: 60px;             
+    height: auto;            
+    opacity: 1;
+    z-index: 6;              
+}
+
+/* 💡 アニメーション開始クラス */
+.start-animation {
+    animation: guestLoop 7.2s linear infinite;
+}
+
+/* 🎬 お客さんの動き（バグっていた％の時系列順をきれいに整理） */
+@keyframes guestLoop {
+    0%    { left: -100px; opacity: 1; }
+    16.6% { left: 10%;    opacity: 1; }
+    25%   { left: 28%;    opacity: 1; } /* 💡 33.3%の前に移動させ、動きを滑らかに補正 */
+    33.3% { left: 46%;    opacity: 1; } /* 💡 この瞬間にJSがお会計（2.4秒後）を正確に発火 */
+    50.0% { left: 46%;    opacity: 0; }
+    66.6% { left: 46%;    opacity: 0; }
+    66.7% { left: 46%;    opacity: 1; } 
+    100%  { left: 115%;   opacity: 1; }
+}
+
+/* =================================================================
+   ⚙️ メニューボタン・設定・モーダルポップアップ共通設定
+================================================================= */
 #menu-btn-group {
     display: flex;
     gap: 10px;
@@ -289,6 +435,11 @@ body {
 }
 #ascend-btn:hover {
     background-color: #8e44ad;
+}
+
+/* ポップアップを非表示にするためのクラス */
+.hidden {
+    display: none !important;
 }
 
 /* ポップアップ（モーダル）の背景全体を暗くするマスク */
@@ -345,9 +496,11 @@ body {
     cursor: not-allowed;
 }
 
+.settings-row {
+    margin-bottom: 25px;
+    width: 100%;
+}
 /* --- 転生モーダル内のデザイン --- */
-
-/* 黄色いステータスボックス */
 .prestige-box {
     background-color: #f1c40f;
     color: #2c3e50;
@@ -357,17 +510,15 @@ body {
     font-weight: bold;
 }
 
-/* 獲得予定ポイントの紫色の文字 */
 .prestige-sub {
     color: #8e44ad;
 }
 
-/* ボックス内の一番下の小さな説明テキスト */
 .prestige-box p {
     font-size: 12px;
     color: #7f8c8d;
-    margin: 5px 0 0 0; /* 上の文字とのすき間を調整 */
-    font-weight: normal; /* 説明文は細い文字にする */
+    margin: 5px 0 0 0;
+    font-weight: normal;
 }
 
 /* 設定画面内の危険なボタン（リセットボタン） */
@@ -385,195 +536,12 @@ body {
 }
 
 .danger-btn:hover {
-    background-color: #c0392b; /* ホバーで少し暗い赤に */
+    background-color: #c0392b;
     transform: scale(1.02);
 }
 
 .danger-btn:active {
     transform: scale(0.98);
-}
-
-/* ロックされている未解放の施設ボタン */
-.shop-btn.locked-facility {
-    background-color: #34495e !important; /* ショップの背景に溶け込む暗いグレー */
-    border: 1px dashed #7f8c8d; /* 点線の枠 */
-    color: #7f8c8d !important;   /* 文字を暗く */
-    cursor: not-allowed;          /* 禁止マークのカーソル */
-    opacity: 0.5;
-}
-
-/* --- ショップのタブ切り替えシステム --- */
-#shop-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 15px;
-}
-
-/* 通常のタブボタンの見た目 */
-.tab-btn {
-    flex: 1;
-    padding: 10px;
-    font-size: 15px;
-    font-weight: bold;
-    border: 1px solid #c8d6e5;
-    background-color: #f5f6fa;
-    color: #333;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.2s;
-}
-
-/* 今選ばれている（アクティブな）タブボタンの見た目 */
-.tab-btn.active {
-    background-color: #1dd1a1;
-    color: white;
-    border-color: #1dd1a1;
-}
-
-/* 非表示にするための共通設定 */
-.shop-container.hidden {
-    display: none !important;
-}
-
-/* 🌟店舗設備が「導入済み（売り切れ）」になった時の豪華デザイン */
-.shop-btn.comfort-sold {
-    background: linear-gradient(135deg, #ffeaa7, #ffb142) !important; /* 豪華なゴールドのグラデーション */
-    color: #2c3e50 !important;                                    /* 文字を読みやすい濃いネイビーに */
-    border: 2px solid #cc8e35 !important;                          /* 高級感のあるゴールドの太枠 */
-    box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);                  /* ほんのりゴールドに光るエフェクト */
-    cursor: default !important;                                    /* 買えないので指マークは消す */
-    font-weight: bold;
-}
-
-
-
-#restaurant-stage {
-    display: block;           
-    /* 💡 フォルダ名を「img/background/」に修正しました */
-    background-image: var(--current-bg, url("img/background/bg_day.png"));
-    background-size: cover;          
-    background-position: center;     
-    background-repeat: no-repeat;    
-    
-    border: 3px solid #c8d6e5;  
-    border-radius: 24px;        
-    padding: 0;
-    margin-top: 25px;
-    overflow: hidden;         
-    position: relative;       
-    width: 100%;                
-    height: 480px;            
-    box-sizing: border-box;
-    box-shadow: inset 0 15px 30px rgba(0,0,0,0.1); 
-    transition: background-image 1.0s ease-in-out;
-}
-
-
-/* 🏪 レストランの建物（280pxの基地として画面中央に強制固定） */
-#restaurant-building-box {
-    position: absolute;
-    top: 60%;                 
-    left: 50%;
-    /* 🌟【超重要】transformの translateX(-50%) とは別に、
-       基地自体のサイズ（280px）をあらかじめがっちり確保して、左右にブレる余地をゼロにします */
-    transform: translate(-50%, -50%); 
-    width: 280px !important;  /* !importantでサイズを強制固定 */
-    height: 280px !important;
-    display: block;           /* flexからblockに戻して、中の要素の幅に引っ張られないようにする */
-    z-index: 5;               
-}
-
-/* 🏪 実際のお店（画像用ベース設定） */
-#restaurant-visual {
-    width: 100% !important;   
-    height: 100% !important;  
-    display: block;
-    user-select: none;
-    object-fit: contain;      
-}
-
-/* 💰 お金とテキストが完全連結したエフェクト（初期状態は透明で待機） */
-#coin-effect {
-    position: absolute;
-    top: 10px;               
-    left: 50%;                
-    transform: translateX(-50%); 
-    transform-origin: center center;
-    text-align: center;       
-    font-size: 42px;          
-    font-weight: bold;
-    color: #4cd137;           
-    text-shadow: 2px 2px 0px #ffffff, -2px -2px 0px #ffffff, 2px -2px 0px #ffffff, -2px 2px 0px #ffffff;
-    white-space: nowrap;
-    opacity: 0; 
-    z-index: 10;
-    pointer-events: none;
-    /* 🌟 infinite（自動ループ）の命令を削除しました */
-}
-
-/* 🌟【新設】JSでこのクラスがついた瞬間だけ、1回だけ垂直にジャンプして消える */
-#coin-effect.show-coin {
-    animation: coinJump 1.2s ease-out forwards; 
-}
-
-/* 🎬 左右に1ミリもブレず、ド真ん中から真っ直ぐお空へ昇天するアニメーション */
-@keyframes coinJump {
-    0% { 
-        opacity: 0; 
-        transform: translateX(-50%) translateY(0); 
-    } 
-    /* お会計の瞬間：パッと現れて少し上に跳ねる */
-    15% { 
-        opacity: 1; 
-        transform: translateX(-50%) translateY(-40px); 
-    } 
-    /* 視認しやすいように、少しの間その場で文字をキープ */
-    70% { 
-        opacity: 1; 
-        transform: translateX(-50%) translateY(-40px); 
-    } 
-    /* 消滅：さらに上にスッと昇りながら消えていく */
-    100% { 
-        opacity: 0; 
-        transform: translateX(-50%) translateY(-90px); 
-    } 
-}
-
-
-/* 🚶 お客さんのベース設定 */
-.walking-guest {
-    position: absolute;
-    bottom: 45px;            
-    left: -100px; 
-    width: 60px;             
-    height: auto;            
-    opacity: 1;
-    z-index: 6;              
-    /* 🌟 HTMLのsrc属性と競合して画像が消える原因になっていたcontent変数を完全に削除 */
-}
-
-/* 💡 アニメーション開始クラス */
-.start-animation {
-    animation: guestLoop 7.2s linear infinite;
-}
-
-/* 🎬 お客さんの動き（バグっていた％の時系列順をきれいに整理） */
-@keyframes guestLoop {
-    0%    { left: -100px; opacity: 1; }
-    16.6% { left: 10%;    opacity: 1; }
-    25%   { left: 28%;    opacity: 1; } /* 💡 33.3%の前に移動させ、動きを滑らかに補正 */
-    33.3% { left: 46%;    opacity: 1; } /* 💡 この瞬間にJSがお会計（2.4秒後）を正確に発火 */
-    50.0% { left: 46%;    opacity: 0; }
-    66.6% { left: 46%;    opacity: 0; }
-    66.7% { left: 46%;    opacity: 1; } 
-    100%  { left: 115%;   opacity: 1; }
-}
-
-
-/* ⚙️ 設定画面内のレイアウト用クラス */
-.settings-row {
-    margin-bottom: 25px;
-    width: 100%;
 }
 
 /* 🎵 BGMスイッチ専用の基本デザイン */
@@ -584,33 +552,31 @@ body {
     font-weight: bold;
     border: none;
     border-radius: 4px;
-    transition: background-color 0.2s ease, transform 0.1s ease; /* 🌟 押したときに滑らかに色が変わるアニメーション */
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-/* 🌟 ON状態のクラス（緑色） */
 .audio-toggle-design.bgm-on {
     background-color: #4cd137 !important;
     color: #ffffff !important;
 }
 
-/* 🌟 OFF状態のクラス（灰色） */
 .audio-toggle-design.bgm-off {
     background-color: #718093 !important;
     color: #dcdde1 !important;
 }
 
-/* 🖱️ マウスを乗せたときに少し明るくする（ホバーエフェクト） */
 .audio-toggle-design:hover {
     filter: brightness(1.1);
     cursor: pointer;
 }
 
-/* 👆 クリックした瞬間に少しだけボタンが沈む（押し心地アップ） */
 .audio-toggle-design:active {
     transform: scale(0.98);
 }
 
-/* 🌟 お店の右下に立つ小さな口コミ看板（画像用調整版） */
+/* =================================================================
+   ⭐ 口コミ看板・レビュー画面ポップアップ
+================================================================= */
 #review-signboard {
     position: absolute;
     bottom: 25px;            /* 🏪 お店の足元に綺麗に設置 */
@@ -624,33 +590,26 @@ body {
     transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-/* 🖱️ 看板にマウスを乗せたらひょこっと浮き上がる楽しい演出 */
 #review-signboard:hover {
     transform: scale(1.15) rotate(5deg); 
-    filter: drop-shadow(0px 6px 10px rgba(0,0,0,0.5)) brightness(1.1); /* 少し明るく */
+    filter: drop-shadow(0px 6px 10px rgba(0,0,0,0.5)) brightness(1.1); 
 }
 
-/* 👆 クリックした瞬間に少し沈む（押し心地アップ） */
 #review-signboard:active {
     transform: scale(0.95);
 }
 
-/* 📋 レビュー画面専用の四角いポップアップ箱（文字色バグ修正版） */
 .review-modal-content {
     max-width: 450px !important;
     max-height: 75vh !important; 
     overflow-y: auto !important;   
     padding-bottom: 20px !important; 
-    
-    /* 🌟【最重要】背景がダークグレー（#2c3e50）なので、文字色を「純白（#ffffff）」に強制固定します */
     background: #2c3e50 !important;
-    color: #ffffff !important;      /* 💡 これがないと文字が背景と同化して見えなくなります */
-    
+    color: #ffffff !important;      
     border: 3px solid #f1c40f;
     box-sizing: border-box;
 }
 
-/* 🌟 ポップアップの中にあるタイトル文字自体の色も白くクッキリさせる設定 */
 .review-modal-content h3 {
     color: #ffffff !important;
     margin-top: 0;
@@ -659,8 +618,6 @@ body {
     text-align: center;
 }
 
-
-/* ⭐ 総合スコアの目立つエリア */
 .review-summary {
     background: rgba(0,0,0,0.2);
     padding: 15px;
@@ -668,13 +625,16 @@ body {
     margin-bottom: 20px;
     text-align: center;
 }
+
 .review-summary span {
     display: block;
 }
+
 #modal-total-stars {
     font-size: 28px;
     color: #f1c40f;
 }
+
 #modal-buff-text {
     font-size: 13px;
     color: #4cd137;
@@ -682,7 +642,6 @@ body {
     margin-top: 5px;
 }
 
-/* 💬 1件ごとの口コミカード */
 .single-review-card {
     background: rgba(255,255,255,0.08);
     padding: 12px;
@@ -695,31 +654,57 @@ body {
     font-style: italic;
 }
 
-/* 🌟 ニュース速報の外枠（画面最上部にがっちり固定） */
-#news-ticker-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 30px;
-    background: #1e272e; /* 落ち着いたダークグレー */
-    border-bottom: 2px solid #f1c40f; /* レストラン風のゴールドライン */
-    overflow: hidden;
-    z-index: 9999; /* 🌟 一番手前に表示させる */
+/* =================================================================
+   📋 ショップのタブ切り替えシステム
+================================================================= */
+#shop-tabs {
     display: flex;
-    align-items: center;
-    user-select: none;
+    gap: 8px; 
+    margin-bottom: 12px; 
+    width: 100%; 
+    box-sizing: border-box;
 }
 
-/* 🌟 ニュース速報の外枠（デカ文字に合わせて縦幅を30px ➔ 45pxに拡大！） */
+.tab-btn {
+    flex: 1;
+    min-width: 0; 
+    padding: 10px 4px; 
+    font-size: 14px; 
+    font-weight: bold;
+    border: 1px solid #c8d6e5;
+    background-color: #f5f6fa;
+    color: #333;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.tab-btn.active {
+    background-color: #1dd1a1;
+    color: white;
+    border-color: #1dd1a1;
+}
+
+.shop-container.hidden {
+    display: none !important;
+}
+
+/* =================================================================
+   🌟 ニュース速報（画面最上部にがっちり固定）
+================================================================= */
 #news-ticker-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    height: 45px;                   /* 🌟 ニュース帯を少し太くして存在感をアップ */
+    height: 45px;                   
     background: #1e272e; 
-    border-bottom: 3px solid #f1c40f; /* ゴールドのラインも少し太くしてクッキリ */
+    border-bottom: 3px solid #f1c40f; 
     overflow: hidden;
     z-index: 9999; 
     display: flex;
@@ -727,55 +712,65 @@ body {
     user-select: none;
 }
 
-/* 🌟 流れる文字のベース設定（サイズを大幅に大きく、さらに太字に！） */
 #news-ticker-text {
     position: absolute;
     white-space: nowrap;
     padding-left: 100%; 
-    color: #ffffff;                 /* 🌟 文字色をよりパキッとした純白に変更 */
-    font-size: 18px;                /* 🌟 サイズを13px ➔ 18pxに大幅拡大！ */
-    font-weight: 900;               /* 🌟 文字の太さをマックスにして視認性を向上 */
-    font-family: 'Helvetica Neue', Arial, sans-serif; /* 🌟 読みやすいゴシック系のフォントに統一 */
+    color: #ffffff;                 
+    font-size: 18px;                
+    font-weight: 900;               
+    font-family: 'Helvetica Neue', Arial, sans-serif; 
     display: inline-block;
-    animation: textScrollMarquee 30s linear infinite; /* 文字が大きくなった分、少しだけ流れる秒数（25s ➔ 30s）を伸ばして快適に */
+    animation: textScrollMarquee 30s linear infinite; 
 }
 
-/* 🖱️ マウスを乗せたらニュースを一時停止させる */
 #news-ticker-container:hover #news-ticker-text {
     animation-play-state: paused;
     color: #f1c40f; 
     cursor: help;
 }
 
-/* 🎬 1ミリもカクつかない滑らかなスクロールルール */
 @keyframes textScrollMarquee {
-    0% {
-        transform: translate3d(0, 0, 0);
-    }
-    100% {
-        transform: translate3d(-100%, 0, 0);
-    }
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
 }
 
-/* 💡 UI崩れ防止：ニュース帯が45pxに巨大化したので、ゲーム全体を45px下にずらして綺麗にフィットさせます */
-body {
-    padding-top: 45px !important;
-}
-
-/* 📡 ニュース速報の中にあるリンク（aタグ）の色をクッキリ見やすく上書き！ */
 #news-ticker-text a {
-    color: #f1c40f !important;      /* 🌟 まだクリックしていない時の色を「鮮やかなゴールド」に固定 */
-    text-decoration: underline;     /* リンクであることが分かりやすいように下線をつける */
+    color: #f1c40f !important;      
+    text-decoration: underline;     
     font-weight: 900;
 }
 
-/* 🌟【最重要】一度クリックして「訪問済み」になっても、絶対に紫色に変えさせない防衛策！ */
 #news-ticker-text a:visited {
-    color: #f1c40f !important;      /* 🌟 訪問済みになっても「ゴールド」のままキープしてだるさを解決 */
+    color: #f1c40f !important;      
 }
 
-/* 🖱️ ニュースの中のリンクにマウスを乗せたとき（指で触れたとき）のエフェクト */
 #news-ticker-text a:hover {
-    color: #ffffff !important;      /* フワッと白く光らせて、押せることをプレイヤーに伝えます */
-    text-decoration: none;          /* マウスが乗った瞬間に下線をスッと消すオシャレ演出 */
+    color: #ffffff !important;      
+    text-decoration: none;          
+}
+
+/* =================================================================
+   📱 レスポンシブ：スマホ（横幅768px以下）のときの極限ギチギチ最適化
+================================================================= */
+@media screen and (max-width: 768px) {
+    #game-container h1 { font-size: 18px !important; } 
+    #game-container h2 { font-size: 16px !important; }
+    #game-container p  { font-size: 11px !important; }
+    #main-click-btn { padding: 12px !important; font-size: 14px !important; } 
+    .shop-btn { font-size: 11px !important; padding: 6px !important; } 
+    
+    #shop-tabs {
+        gap: 4px; 
+        margin-bottom: 8px;
+    }
+    .tab-btn {
+        font-size: 11px !important; 
+        padding: 6px 2px !important; 
+    }
+    #review-signboard {
+        width: 38px !important;    
+        bottom: 12px !important;   
+        right: -12px !important;   
+    }
 }
