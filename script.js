@@ -1388,6 +1388,10 @@ function loadGame() {
             // 離れていた時間を「秒数」にする（ミリ秒を1000で割る）
             const passedSeconds = Math.floor((now - saveData.saveTime) / 1000);
 
+            // 🌟 ここを追加：上限を24時間（86400秒）に制限する
+            passedSeconds = Math.min(passedSeconds, 86400); 
+
+
             // 【リロード対策】1分以上（60秒以上）離れていた場合だけボーナスを支給する
             if (passedSeconds >= 60) {
                 // オフライン中の売上 = 離れていた秒数 * 毎秒の売上 * 30%ボーナス

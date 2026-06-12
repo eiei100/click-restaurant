@@ -8,45 +8,64 @@ html, body {
     height: 100vh;
     overflow: hidden; /* 🌟 画面全体が上下左右にガタガタ揺れるのを完全ロック */
 }
-
 body {
     font-family: Arial, sans-serif;
-    background-color: #f7e1d7; /* 美味しそうな薄いベージュ色 */
-    user-select: none;         /* 連打時のはみ出し選択を防止 */
+    
+    /* 💡 背景を真っ黒にしてゲーム画面を引き締める */
+    background-color: #000000; 
+    background-image: none;    /* タイル画像は外します */
+    
+    user-select: none;         
     box-sizing: border-box;
-    padding: 10px;             /* 💡 画面の一番外側にほんの少しだけ隙間を作る */
-    padding-top: 45px !important; /* 💡 ニュース帯が45pxに巨大化したのでゲーム全体を下にずらす */
+    padding: 10px;             
+    padding-top: 45px !important; 
     
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+
+
 /* 🌟 ゲーム全体を包むコンテナ（画面の縦横いっぱいに100%広げる！） */
 #game-container {
     width: 100%;
     height: 100%;
-    background-color: white;
+    
+    /* 💡 タイル画像を本来の色でクッキリ敷き詰める設定 */
+    background-image: url('img/background.png'); 
+    background-repeat: repeat;                         
+    background-color: transparent; 
+
+    /* 🌟 これを追加！タイルの1マスの横幅を「120px」にして大量に敷き詰める */
+    background-size: 120px auto; 
+    
     padding: 15px;
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     box-sizing: border-box;
     
-    display: flex;     /* 💡 これで3つの部屋が自動的に横一列に並びます */
-    gap: 15px;         /* 部屋と部屋の間のちょうどいいすき間 */
+    display: flex;     
+    gap: 0;            /* 🌟 部屋と部屋の間の隙間を「0」にしてぴったり密着させました */
     position: relative; 
 }
 
+
 /* =================================================================
-   📐 3列の黄金比率（元の綺麗だったバランスのまま、縦幅を100%固定）
+   📐 3列の黄金比率（隙間なくぴったり密着＋元のバランスをがっちり維持）
 ================================================================= */
 
 /* 1. 左列：クリックエリア */
 #left-panel {
     flex: 1;            /* 横幅の比率 */
     height: 100%;       /* 💡 縦幅を100%に固定 */
-    border-right: 2px dashed #f7e1d7; /* 右側に点線の区切り */
-    padding-right: 15px;
+    border-right: 2px dashed #e0cda9; /* 💡 右側の点線の仕切り */
+    padding: 20px;       
+    
+    /* 隣とくっつけるため、左側だけ角丸（全体が1つの大きな箱に見えるように） */
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+    
     display: flex;
     flex-direction: column;
     align-items: center;        
@@ -58,26 +77,117 @@ body {
 #center-panel {
     flex: 1.2;          /* 真ん中を目立たせるために、少しだけ広く（1.2倍） */
     height: 100%;       /* 💡 縦幅を100%に固定 */
-    border-right: 2px dashed #f7e1d7; /* 右側に点線の区切り */
-    padding-right: 15px;
+    border-right: 2px dashed #e0cda9; /* 💡 右側の点線の仕切り */
+    padding: 20px;       
+    margin: 0;           /* 🌟 隙間を完全になくすためにマージンを0に */
+    /* 🌟 中央は角丸をなしにして、左右のパネルと滑らかに繋げます */
+    
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* 💡 中央のイラストや文字を上下の真ん中に寄せる */
+    justify-content: center; 
     box-sizing: border-box;
 }
 
 /* 🏢 3. 右列：ショップエリア（親の箱） */
 #right-panel {
-    flex: 1;            /* 横幅の比率 */
-    height: 100%;       /* 💡 縦幅を画面いっぱいの100%に固定 */
+    flex: 1;            
+    height: 100%;       
     position: relative;   
+    padding: 20px;       
+    
+    /* 💡 ここにショップ用の新しいタイル設定が入ります */
+    background-image: url('img/shop_background.png'); 
+    background-repeat: repeat;                         
+    background-size: 200px auto; 
+    background-color: transparent; 
+    
+    border-top-right-radius: 12px;    
+    border-bottom-right-radius: 12px; 
+    
+    /* 🌟 枠線の色を「茶色」から「ハッキリ見える炭黒（#222222）」に変更！ */
+    border-right: 3px solid #222222;  
+    border-top: 3px solid #222222;    
+    border-bottom: 3px solid #222222; 
     
     display: flex;
     flex-direction: column; 
-    overflow: hidden;     /* 🌟 親はスクロールさせず、はみ出たボタンを隠して子にパスする */
+    overflow: hidden;     
     box-sizing: border-box;
 }
+
+
+
+/* ショップのタイトル文字を見やすくする */
+.shop-title {
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: rgb(255, 255, 255); /* 75%の薄い白背景 */
+    border-radius: 8px;                           /* 角を少し丸く */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);       /* うっすら影 */
+    color: #333333;                               /* 文字色 */
+}
+
+.center-title {
+    margin-top: 0;
+    margin-bottom: 15px;
+    display: inline-block;
+    padding: 4px 12px;
+    
+    /* 💡 お揃いの薄いベージュに変更 */
+    background-color: rgb(255, 255, 255); 
+    
+    border-radius: 8px;                           
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);       
+    color: #333333;                               
+}
+
+.center-rank {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: inline-block;
+    padding: 4px 12px;
+    
+    /* 💡 お揃いの薄いベージュに変更 */
+    background-color: rgb(255, 255, 255); 
+    
+    border-radius: 8px;                           
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);       
+    color: #2c3e50;                               
+    font-weight: bold;                            
+}
+
+
+.status-board {
+    /* 💡 白から、背景になじむ薄いベージュ（85%の濃さ）に変更 */
+    background-color: rgb(250, 250, 250); 
+    
+    border-radius: 12px;                          
+    padding: 15px 25px;                           
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);      
+    text-align: left;                             
+    width: 90%;                                   
+    box-sizing: border-box;
+}
+
+
+/* ボード内の文字の隙間を少し綺麗に整える */
+.status-board h1 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 34px;                              /* 大きすぎる場合はお好みで調整 */
+    color: #333333;
+}
+
+.status-board p {
+    margin: 6px 0;
+    font-size: 20px;
+    color: #555555;
+    font-weight: bold;
+}
+
 
 /* =================================================================
    🌟【バグ修正】売上金額などの数字のブレ防止・等幅フォントロック
@@ -101,25 +211,37 @@ body {
    🛒 ショップ・売り場エリア（スクロール・ボタン設定）
 ================================================================= */
 
-/* 🛒 ボタンがJavaScriptで自動量産される売り場エリア
-   （※スペルミス防止のため、既存の「shop-continer」と、正しい「shop-container」の両方に対応） */
-.shop-continer, .shop-container {
-    width: 100%;
+/* 🌟 ボタンが量産されるショップエリア全体のリストボックス（最終調整版） */
+.shop-continer {
+    background-color: rgb(255, 255, 255); /* 薄い白の座布団でタイルを透かす */
+    border: 2px solid #e0cda9;                   /* クッキリさせるための薄い茶枠 */
+    border-radius: 12px;                         /* 角丸デザイン */
+    padding: 15px;                               /* ボックス内のすき間 */
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); /* 内側の影で立体感を出す */
     
-    /* 💡【最重要】上のタイトルやタブの分を引いた「残りの全縦スペース」をこの売り場が自動で担当します */
-    flex: 1; 
+    /* 縦に並べる設定 */
+    display: flex;
+    flex-direction: column;
     
-    /* 💡【最重要】これがないとボタンが突き抜けます。縦幅をこの割り当てられたスペース内にがっちりロック！ */
-    min-height: 0; 
+    /* 💡 ボタンの margin-bottom が効いているため、ここの gap は 0 にして打ち消します */
+    gap: 0px; 
     
-    /* 💡 ボタンが入り切らなくなったら、この枠内だけがスイスイ縦スクロールします */
-    overflow-y: auto !important; 
+    /* 💡 画面に合わせて高さを制限し、はみ出たらスクロールさせる設定（お好みの高さに調整してください） */
+    max-height: 450px; 
+    overflow-y: auto;
     
-    padding-right: 10px; /* スクロールバーと施設ボタンが重ならないための隙間 */
-    box-sizing: border-box;
-    
-    /* スマホでスクロールした時にカクつかず滑らかに動かす魔法の1行 */
-    -webkit-overflow-scrolling: touch;
+    /* 💡 スクロールバーを細くしてデザインになじませる設定（Firefox / Chrome用） */
+    scrollbar-width: thin;
+    scrollbar-color: #c8d6e5 transparent;
+}
+
+/* ChromeやSafari向け：スクロールバーを細くする魔法 */
+.shop-continer::-webkit-scrollbar {
+    width: 6px;
+}
+.shop-continer::-webkit-scrollbar-thumb {
+    background-color: #c8d6e5;
+    border-radius: 3px;
 }
 
 /* ショップのボタン */
@@ -193,10 +315,16 @@ body {
     width: 100%;            /* 左パネルの横幅いっぱいに広げる設定 */
     display: block;         /* 上下のテキストと綺麗に縦並びにする設定 */
     margin-top: 20px;       /* 売上テキストとのちょうどいい隙間 */
+    
+    /* 🌟 これを追加！中の丸いボタンを左右のど真ん中に配置します */
+    text-align: center;     
 }
 
 /* 🍳 料理を作るメインボタン自体の設定 */
 #main-click-btn {
+    /* 💡 display: inline-block を追加して、text-align: center が効くようにします */
+    display: inline-block;  
+    
     width: 100%;            /* 親のclick-areaに合わせて横幅いっぱいに */
     height: 300px;          /* 縦幅も300pxにして綺麗な正円にする */
     max-width: 300px;       /* 横幅を300pxに巨大化（※綺麗に丸くなるよう制限） */
@@ -212,6 +340,7 @@ body {
     transition: 0.05s;      /* クリックした時の沈み込みをさらに高速に */
     box-sizing: border-box; /* 絶対に横にはみ出さないようにガードする魔法の1行 */
 }
+
 
 /* ボタンを押したときのカチッとする動き */
 #main-click-btn:active {

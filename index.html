@@ -16,24 +16,28 @@
     <!-- ゲーム全体を包むコンテナ（ここを3列に並べます） -->
     <div id="game-container">
         
-                <!-- 1. 左列：クリックと売上情報 -->
-        <div id="left-panel">
-            <h1>売上: <span id="money">0</span> 円</h1>
-            <!-- 🌟【新登場】今世（この周回）で稼いだ売上の表示を追加 -->
-            <p>今世の売上: <span id="season-money">0</span> 円</p>
-            <p>毎秒の売上: <span id="mps">0</span> 円</p>
-            <!-- 【追加】これまでに稼いだすべての合計金額を表示する場所 -->
-            <p>通算の売上: <span id="total-money">0</span> 円</p>
+        <!-- 1. 左列：クリックと売上情報 -->
+<div id="left-panel">
+    
+    <!-- 💡 変更点：売上情報を1つのボード（白い箱）で包み込む -->
+    <div class="status-board">
+        <h1>売上: <span id="money">0</span> 円</h1>
+        <!-- 🌟【新登場】今世（この周回）で稼いだ売上の表示を追加 -->
+        <p>今世の売上: <span id="season-money">0</span> 円</p>
+        <p>毎秒の売上: <span id="mps">0</span> 円</p>
+        <!-- 【追加】これまでに稼いだすべての合計金額を表示する場所 -->
+        <p>通算の売上: <span id="total-money">0</span> 円</p>
+    </div>
 
-            <div id="click-area">
-                <button id="main-click-btn">🍳 料理を作る！</button>
-            </div>
-        </div>
+    <div id="click-area">
+        <button id="main-click-btn">🍳 料理を作る！</button>
+    </div>
+</div>
 
 
         <!-- 2. 中央列：お店の発展・外観エリア -->
 <div id="center-panel">
-    <h2>マイ・レストラン</h2>
+    <h2 class="center-title">マイ・レストラン</h2>
 
     <!-- 設定と転生ボタンのグループ -->
     <div id="menu-btn-group">
@@ -41,7 +45,7 @@
         <button id="ascend-btn" class="menu-btn">🌌 転生</button>
     </div>
     <!-- 現在のお店のランク名を表示する場所 -->
-    <div id="restaurant-rank">ランク1: 小さな屋台</div>
+    <div id="restaurant-rank" class="center-rank">ランク1: 小さな屋台</div>
 
     <!-- 🎪 お客さんがトコトコ歩くアニメーションの舞台 -->
     <div id="restaurant-stage">
@@ -78,32 +82,31 @@
 
 
 
-        <!-- 3. 右列：ショップ -->
-        <div id="right-panel" style="position: relative;">
-            <h2>ショップ</h2>
+<!-- 3. 右列：ショップ -->
+<div id="right-panel" style="position: relative;">
+    
+    <!-- 💡 変更点①：h2に「class="shop-title"」を追加 -->
+    <h2 class="shop-title">ショップ</h2>
 
-            <!-- 🌟【新登場】ショップの切り替えタブ -->
-            <div id="shop-tabs">
-                <button id="tab-facilities" class="tab-btn active">施設</button>
-                <button id="tab-comfort" class="tab-btn">店舗設備</button>
-            </div>
-            <!-- 一括購入の倍率を切り替えるボタンのグループ -->
-            <div id="buy-amount-selector" style="margin-bottom: 15px; text-align: left;">
-                購入数:
-                <label><input type="radio" name="buy-amount" value="1" checked> x1</label>
-                <label><input type="radio" name="buy-amount" value="10"> x10</label>
-                <label><input type="radio" name="buy-amount" value="100"> x100</label>
-            </div>
-            
-
-            <!-- JavaScriptがこの中にボタンを自動で量産します -->
-            <div id="shop-area-facilities" class="shop-continer"></div>
-            <div id="shop-area-comfort" class="shop-continer hidden"></div>
-        </div>
-
-        <!-- ゼロ秒でパッと出る自作ポップアップの箱 -->
-            <div id="tooltip" class="hidden"></div>
+    <!-- 🌟【新登場】ショップの切り替えタブ -->
+    <div id="shop-tabs">
+        <button id="tab-facilities" class="tab-btn active">施設</button>
+        <button id="tab-comfort" class="tab-btn">店舗設備</button>
     </div>
+    
+    <!-- 💡 変更点②：購入数セレクターに背景色（白の半透明）と余白・丸みを追加 -->
+    <div id="buy-amount-selector" style="margin-bottom: 15px; text-align: left; background-color: rgb(255, 255, 255); padding: 8px 12px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-weight: bold; width: fit-content;">
+        購入数:
+        <label><input type="radio" name="buy-amount" value="1" checked> x1</label>
+        <label><input type="radio" name="buy-amount" value="10"> x10</label>
+        <label><input type="radio" name="buy-amount" value="100"> x100</label>
+    </div>
+    
+    <!-- JavaScriptがこの中にボタンを自動で量産します -->
+    <div id="shop-area-facilities" class="shop-continer"></div>
+    <div id="shop-area-comfort" class="shop-continer hidden"></div>
+</div>
+
 
     <!-- 【設定】設定画面のポップアップ（モーダル） -->
 <div id="settings-modal" class="modal-overlay hidden">
