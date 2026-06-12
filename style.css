@@ -751,26 +751,265 @@ body {
 }
 
 /* =================================================================
-   📱 レスポンシブ：スマホ（横幅768px以下）のときの極限ギチギチ最適化
+   🛒 ショップエリア：購入数セレクターの快適タブ化（PC・スマホ共通）
 ================================================================= */
-@media screen and (max-width: 768px) {
-    #game-container h1 { font-size: 18px !important; } 
-    #game-container h2 { font-size: 16px !important; }
-    #game-container p  { font-size: 11px !important; }
-    #main-click-btn { padding: 12px !important; font-size: 14px !important; } 
-    .shop-btn { font-size: 11px !important; padding: 6px !important; } 
+#buy-amount-selector {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+    margin-bottom: 15px !important;
+    font-size: 16px; 
+    font-weight: bold;
+    color: #2c3e50;
+    user-select: none;
+}
+
+/* ラベル自体を押しやすい四角いボタンに変形させる */
+#buy-amount-selector label {
+    flex: 1;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
     
-    #shop-tabs {
-        gap: 4px; 
-        margin-bottom: 8px;
+    background-color: #f5f6fa !important;
+    border: 2px solid #c8d6e5 !important;
+    border-radius: 6px !important;
+    padding: 10px 4px !important; /* マウスでも指でも抜群の押し心地 */
+    font-size: 16px !important;   /* PC用の標準サイズ */
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease;
+}
+
+/* マウスを乗せたときにフワッと明るく（PC専用ホバー） */
+#buy-amount-selector label:hover {
+    background-color: #eaeaea !important;
+    border-color: #b0bfc1 !important;
+}
+
+/* 内部の小さな丸（ラジオボタン）自体のサイズ */
+#buy-amount-selector input[type="radio"] {
+    width: 16px !important;  
+    height: 16px !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+}
+
+/* 💡 現在選ばれている倍率の背景をフワッと明るい緑色にする */
+#buy-amount-selector label:has(input[type="radio"]:checked) {
+    background-color: #d1f2eb !important;
+    border-color: #1dd1a1 !important;
+    color: #10ac84 !important;
+}
+
+
+/* =================================================================
+   📱【最新・超巨大化＆位置修正版】極限まで見やすさを極めたスマホ設定
+================================================================= */
+@media (pointer: coarse) and (hover: none) {
+    
+    /* 外側の無駄な余白をカットして全画面化 */
+    body {
+        padding: 0 !important;
+        padding-top: 45px !important;
     }
-    .tab-btn {
-        font-size: 11px !important; 
-        padding: 6px 2px !important; 
+    #game-container {
+        flex-direction: row !important; 
+        width: 100vw !important;
+        height: calc(100vh - 45px) !important;
+        padding: 8px !important;
+        gap: 8px !important;
+        border-radius: 0 !important;
+    }
+
+    /* 🍳 左パネル：売上もボタンも限界まで巨大化 */
+    #left-panel {
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important; 
+        align-items: center !important;
+        padding: 0 !important;
+        padding-right: 4px !important;
+    }
+    
+    /* 🌟 左列のテキスト（さらに大きく圧倒的な視認性に！） */
+    #left-panel h1, #left-panel p {
+        margin: 4px 0 !important; 
+        text-align: center !important;
+        width: 100%;
+    }
+    #game-container h1 { font-size: 40px !important; } 
+    #game-container p  { font-size: 35px !important; } 
+    
+    #money, #season-money, #mps, #total-money {
+        min-width: 120px !important; 
+        font-size: 35px !important;   
+    }
+
+    /* 🍳 料理を作るメインボタン（超ドデカサイズ！） */
+    #click-area {
+        flex: 1 !important; 
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+    }
+    #main-click-btn {
+        width: 100% !important;
+        height: 500px !important; 
+        max-width: 100% !important;
+        max-height: none !important;
+        border-radius: 24px !important; 
+        font-size: 60px !important; 
+        box-shadow: 0 8px #ee5253 !important;
+        margin: 0 !important;
+    }
+
+    /* 🏪 中央パネル：設定ボタンやランクの文字も拡大 */
+    #center-panel {
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important; 
+        padding: 0 !important;
+        padding-right: 4px !important;
+    }
+
+    /* 設定・転生ボタン（文字を大きく、タップしやすく） */
+    #menu-btn-group {
+        width: 100%;
+        margin-bottom: 5px !important;
+        gap: 4px !important;
+    }
+    .menu-btn {
+        flex: 1;
+        padding: 8px 2px !important; 
+        font-size: 30px !important; 
+    }
+    #restaurant-rank {
+        font-size: 30px !important; 
+        margin: 2px 0 5px 0 !important;
+    }
+
+    /* イラストステージ */
+    #restaurant-stage {
+        display: block !important;
+        flex: 1 !important; 
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+    }
+
+    /* レストランの建物と看板 */
+    #restaurant-building-box {
+        width: 250px !important;
+        height: 250px !important;
+        left: 50% !important;
+        top: 78% !important; 
+        transform: translate(-50%, -50%) !important;
     }
     #review-signboard {
-        width: 38px !important;    
-        bottom: 12px !important;   
-        right: -12px !important;   
+        width: 80px !important;    
+        bottom: 5px !important;   
+        right: -10px !important;   
     }
+
+    /* 🚶 お客さんの歩行位置（お店のサイズアップに合わせてドアを通る高さに引き上げ！） */
+    .walking-guest {
+        bottom: 200px !important;  /* 🌟 250pxサイズに巨大化したお店の入り口にぴったり重なる高さに修正 */
+        width: 45px !important;
+    }
+
+    /* 🛒 ショップエリア（右パネル：さらに文字デカ＆ボタン巨大化！） */
+    #right-panel {
+        height: 100% !important;
+    }
+    
+    /* ショップのタブボタン */
+    #shop-tabs {
+        gap: 4px !important;
+        margin-bottom: 8px !important;
+    }
+    #shop-tabs .tab-btn {
+        font-size: 30px !important; 
+        padding: 10px 2px !important; 
+    }
+
+    /* 施設ボタン本体と文字（限界まで大きく！） */
+    .shop-btn { 
+        font-size: 25px !important;       
+        padding: 14px 12px !important;    
+        margin-bottom: 8px !important;    
+    } 
+
+    /* 🌟【横並び維持・見切れ対策】購入数セレクターのスマホ最適化設定 */
+    #buy-amount-selector {
+        display: flex !important;
+        flex-direction: row !important; /* 💡 便利な横並びを絶対に維持！ */
+        align-items: center !important;
+        gap: 4px !important;            /* ボタン同士のすき間を詰めて横幅を稼ぐ */
+        margin-bottom: 12px !important;
+        font-size: 16px !important;    /* 「購入数:」の文字をほどよいサイズに */
+        font-weight: bold !important;
+        color: #2c3e50 !important;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* ラベル（ボタンの枠）自体のサイズ微調整 */
+    #buy-amount-selector label {
+        flex: 1 !important; /* 💡 3つのボタンが横幅を均等に分け合って並ぶ */
+        min-width: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        
+        background-color: #f5f6fa !important;
+        border: 2px solid #c8d6e5 !important;
+        border-radius: 6px !important;
+        padding: 10px 2px !important; /* 縦幅の押しやすさは維持して、横をスリムに */
+        font-size: 18px !important;   /* 🌟 24pxから「18px」に微調整！これで見切れを完全防衛 */
+        font-weight: bold !important;
+        cursor: pointer !important;
+        box-sizing: border-box;
+        white-space: nowrap !important; /* 絶対に文字を改行させない */
+    }
+
+    /* ラジオボタンの丸ポチサイズ */
+    #buy-amount-selector input[type="radio"] {
+        width: 18px !important;  /* 🌟 丸ポチのサイズも全体のバランスに合わせて18pxに微調整 */
+        height: 18px !important;
+        margin: 0 !important;
+        cursor: pointer !important;
+    }
+
+    /* =================================================================
+       🌟【スマホ専用】ニュース速報の文字・帯の超巨大化設定
+       ================================================================= */
+    #news-ticker-container {
+        display: flex !important;    /* 💡 非表示を解除し、確実に表示させます */
+        height: 60px !important;     /* 💡 ニュース帯を 45px ➔ 60px に太くして存在感アップ！ */
+        border-bottom: 4px solid #f1c40f !important; /* ゴールドラインも太くクッキリ */
+    }
+
+    #news-ticker-text {
+        font-size: 24px !important;  /* 💡 文字サイズを 18px ➔ 24px に大幅拡大！ */
+        font-weight: 900 !important; /* 💡 マックスの太字にして視認性を限界まで向上 */
+    }
+
+    /* 💡 ニュース帯が60pxに巨大化したので、ゲームが被らないように全体の押し下げ幅を自動連動 */
+    body {
+        padding-top: 60px !important; /* 💡 上の隙間を 45px ➔ 60px に広げて綺麗にフィット */
+    }
+
+    #game-container {
+        height: calc(100vh - 60px) !important; /* 💡 残りの縦スペースをゲーム画面としてフルに使う */
+    }
+
+
 }
