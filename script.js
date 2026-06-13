@@ -1016,38 +1016,72 @@ function changeNextGuest(guestEl) {
 
 
 
+// 💡 イベントの重複登録（二重発火）を防ぐための安全ガード用グローバルフラグ
+let isShopEventsInitialized = false;
+
+// 🌟【新設・完全ガード】背景タップリセットの仕組みを施設ショップ用に1回だけ登録
+function initShopGlobalListener() {
+    if (isShopEventsInitialized) return;
+
+    document.addEventListener('pointerup', (e) => {
+        // メインボタンやエフェクトなどを触っている時は処理をスキップ
+        if (e.target.closest('#main-click-btn') || e.target.closest('.click-pop-effect') || e.target.closest('.click-effect') || e.target.closest('#coin-effect')) {
+            return;
+        }
+        
+        // タップされた場所がショップボタン（またはその中身）ではない場合、すべての選択状態をリセット
+        if (!e.target.closest('.shop-btn')) {
+            const tooltipEl = document.getElementById('tooltip');
+            if (tooltipEl) tooltipEl.classList.add('hidden');
+            document.querySelectorAll('.shop-btn.active-touch').forEach(btn => {
+                btn.classList.remove('active-touch');
+            });
+        }
+    }, { passive: true });
+
+    isShopEventsInitialized = true;
+}
+
 // --- 6. ショップのボタンを自動生成する関数 ---
 function createShop() {
     // ボタンを追加する場所（shop-area）をここでしっかり取得
     const shopArea = document.getElementById('shop-area-facilities');
     if (!shopArea) return;
 
-    facilities.forEach((facility) => {
-        const btn = document.createElement('button');
-        btn.className = 'shop-btn';
-        btn.id = `buy-${facility.id}-btn`;
+    // グローバルリスナーを確実に1回だけ初期化
+    initShopGlobalListener();
 
-        // 修正前: id="${facility.id}-name" / id="${facility.id}-cost"
-        // 修正後: id="name-${facility.id}" / id="cost-${facility.id}" に変更
+    facilities.forEach((facility) => {
+        // 🌟【重要：重複作成のガード】すでに画面にこの施設のボタンがあるならスキップして安全更新へ
+        let btn = document.getElementById(`buy-${facility.id}-btn`);
+        const isNewBtn = !btn;
+
+        if (isNewBtn) {
+            btn = document.createElement('button');
+            btn.className = 'shop-btn';
+            btn.id = `buy-${facility.id}-btn`;
+        }
+
+        // ボタンの表示内容を最新の状態に更新（コスト等は最新の数値を反映）
         btn.innerHTML = `<span id="name-${facility.id}">???</span>（コスト: <span id="cost-${facility.id}">${facility.cost}</span> 円)`; 
 
+        // すでにボタンが存在していた場合は、イベントの再登録を防ぐためここで処理を抜ける
+        if (!isNewBtn) return;
 
-        // マウスを乗せた時（ホバー時）の処理
-        btn.addEventListener('mouseenter', () => {
+        // 🌟 ツールチップを表示する中身の処理（PC・スマホで使い回せるように共通化）
+        function showShopTooltip() {
+            const tooltipEl = document.getElementById('tooltip');
+            if (!tooltipEl) return;
+
             const isLocked = btn.classList.contains('locked-facility');
-            
-            // 🌟 まず最初に空のテキストを用意する
             let tooltipText = "";
 
-            // 🌟 【第1パターン】まだアンロックされていない（？？？）の場合
             if (isLocked) {
                 tooltipText += `【 ？？？ 】\n`;
                 tooltipText += `所持数: ${formatNumber(facility.count)} 体\n`;
                 tooltipText += `------------------------\n`;
                 tooltipText += `効果: ？？？？？\n`;
-            }  
-            // 🌟 【第2パターン】すでに解禁されている通常の場合
-            else {
+            } else {
                 const totalFacilityMps = facility.count * facility.mpsValue;
                 const mpsPercent = gameState.mps > 0 ? Math.round((totalFacilityMps / gameState.mps) * 100) : 0;
 
@@ -1063,36 +1097,67 @@ function createShop() {
                 }
             }
 
-                // 🌟 出来上がったテキストを画面のツールチップに流し込む（ここは共通）
             tooltipEl.textContent = tooltipText;
             tooltipEl.classList.remove('hidden');
 
-            // =================================================================
-            // 💡【完全ズーム耐性版】タブの拡大縮小でも絶対にズレない位置計算に上書き
-            // =================================================================
             const btnRect = btn.getBoundingClientRect();
             const containerRect = document.getElementById('game-container').getBoundingClientRect();
-            const rightPanelRect = document.getElementById('right-panel').getBoundingClientRect();
-            const tooltipRect = tooltipEl.getBoundingClientRect(); // 🌟 ツールチップ自身の現在の幅をリアルタイム取得
+            const tooltipRect = tooltipEl.getBoundingClientRect();
+
+            // 💡 ① 左右位置：ボタンの真ん中にツールチップの中心を合わせる
+            const targetLeft = btnRect.left - containerRect.left + (btnRect.width / 2) - (tooltipRect.width / 2);
+            const maxLeft = containerRect.width - tooltipRect.width - 10;
+            tooltipEl.style.left = `${Math.max(10, Math.min(targetLeft, maxLeft))}px`;
             
-            // 🌟 右列パネルの左端（rightPanelRect.left）を基準にして、ツールチップの横幅分だけ左にぴったり密着！
-            // 💡 最後の「- 10」を調整することで、ショップの壁とのスキマ（余白）を自由に微調整できます
-            tooltipEl.style.left = `${rightPanelRect.left - containerRect.left - tooltipRect.width - 10}px`;
+            // 💡 ② 上下位置：ボタンの「真上（さらに8px上）」に浮かせる計算
+            const targetTop = btnRect.top - containerRect.top - tooltipRect.height - 8;
             
-            // 🌟 高さもボタンのトップの位置に完全に合わせる
-            tooltipEl.style.top = `${btnRect.top - containerRect.top}px`;
+            if (targetTop < 10) {
+                tooltipEl.style.top = `${btnRect.bottom - containerRect.top + 8}px`; // 天井にぶつかるなら下に出す
+            } else {
+                tooltipEl.style.top = `${targetTop}px`;
+            }
+
+            // 🔴【重なり順バグ修正】モーダルや他のUIの裏に絶対回り込まないよう最前面へ
+            tooltipEl.style.zIndex = "999999";
+        }
+
+        // 💻 PC用：マウスを乗せた時の処理（タッチデバイスは誤作動防止のため完全スルー）
+        btn.addEventListener('mouseenter', () => {
+            if (typeof isCollectionTouchDevice === 'function' && isCollectionTouchDevice()) return;
+            if (!btn.classList.contains('active-touch')) {
+                showShopTooltip();
+            }
         });
 
-
-
-        // マウスがボタンから離れた時
-        btn.addEventListener('mouseleave', () => {
-            tooltipEl.classList.add('hidden');
+        // 💻 PC用：マウスがボタンから離れた時の処理
+        btn.addEventListener('mouseleave', (e) => {
+            if (e.pointerType === 'touch' || (typeof isCollectionTouchDevice === 'function' && isCollectionTouchDevice())) return;
+            const tooltipEl = document.getElementById('tooltip');
+            if (tooltipEl) tooltipEl.classList.add('hidden');
+            btn.classList.remove('active-touch');
         });
 
-        // クリックされた時の処理
-        btn.addEventListener('click', () => {
+        // 📱 スマホ用＆購入処理：クリックされた時の処理
+        btn.addEventListener('click', (e) => {
             if (btn.classList.contains('locked-facility')) return;
+
+            // 📱 スマホ環境におけるタップ制御
+            if (typeof isCollectionTouchDevice === 'function' && isCollectionTouchDevice()) {
+                // 💡 1回目：まだこのボタンを選択（active-touch）していないなら詳細を出すだけ
+                if (!btn.classList.contains('active-touch')) {
+                    // 他のすべての施設ボタンの選択状態を綺麗にリセット
+                    const allShopBtns = shopArea.querySelectorAll('.shop-btn');
+                    allShopBtns.forEach(b => b.classList.remove('active-touch'));
+
+                    btn.classList.add('active-touch');
+                    showShopTooltip();
+                    e.stopPropagation(); // 背景リセットの暴発を防ぐ
+                    return; // 購入処理へ進まずここで止める
+                }
+            }
+
+            // 🌟 2回目タップ（またはPCでのクリック）：通常の購入ロジックを実行！
             const buyInfo = calculateMultiBuy(facility.cost, gameState.buyAmount);
 
             if (gameState.money >= buyInfo.totalCost) {
@@ -1101,8 +1166,10 @@ function createShop() {
                 gameState.mps += facility.mpsValue * gameState.buyAmount;
                 facility.cost = buyInfo.nextCost;
 
-                updateDisplay();
-                btn.dispatchEvent(new Event('mouseenter'));
+                if (typeof updateDisplay === 'function') updateDisplay();
+                
+                // 購入後、最新の数値（価格や所持数）に書き換えてツールチップを維持
+                showShopTooltip();
             }
         });
 
@@ -1169,8 +1236,27 @@ function createComfortShop(){
 
             const btnRect = btn.getBoundingClientRect();
             const containerRect = document.getElementById('game-container').getBoundingClientRect();
-            tooltipEl.style.left = `${btnRect.left - containerRect.left - 260}px`;
-            tooltipEl.style.top = `${btnRect.top - containerRect.top}px`;
+            const tooltipRect = tooltipEl.getBoundingClientRect(); // 💡 ツールチップ自身のサイズをリアルタイム計測
+
+            // 💡 ① 左右位置：ボタンの真ん中にツールチップの中心を合わせる
+            const targetLeft = btnRect.left - containerRect.left + (btnRect.width / 2) - (tooltipRect.width / 2);
+            
+            // 🛡️ 左右のはみ出しガード（画面の壁から10px内側に自動で収める）
+            const maxLeft = containerRect.width - tooltipRect.width - 10;
+            tooltipEl.style.left = `${Math.max(10, Math.min(targetLeft, maxLeft))}px`;
+
+            // 💡 ② 上下位置：ボタンの「真上（さらに8px上）」に浮かせる計算に変更！
+            const targetTop = btnRect.top - containerRect.top - tooltipRect.height - 8;
+            
+            // 🛡️ 上下のはみ出しガード（万が一天井を突き抜けそうな場合は、ボタンの下側に自動で逃がす）
+            if (targetTop < 10) {
+                tooltipEl.style.top = `${btnRect.bottom - containerRect.top + 8}px`; // ボタンの下側に出す
+            } else {
+                tooltipEl.style.top = `${targetTop}px`; // 通常はボタンの真上に出す
+            }
+
+            // 重なり順を最前面へ引き上げる
+            tooltipEl.style.zIndex = "999999";
         });
 
         // マウスがボタンから離れた時
@@ -1248,7 +1334,7 @@ function updateRestaurantReview() {
 
     // 快適度による星の判定
     let starRank = 1;
-    if (totalComfort >= 740)      starRank = 5;
+    if (totalComfort >= 440)      starRank = 5;
     else if (totalComfort >= 90)  starRank = 4;
     else if (totalComfort >= 20)  starRank = 3;
     else if (totalComfort >= 5)   starRank = 2;
